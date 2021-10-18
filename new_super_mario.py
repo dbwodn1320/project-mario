@@ -16,8 +16,8 @@ class Mario:
         #self.action_delay = [0,0.035,0.035,0.035,0.035]
     def update(self,act):
         global action
-        x_speed = 5
-        jump_speed = 8
+        x_speed = 10
+        jump_speed = 16
 
         if action == 7 or action == 8:
             self.running_cnt += 1
@@ -85,11 +85,11 @@ class Mario:
     def draw(self, act):
         png_height = 656
         if act == 1 or act == 2:
-            self.image.clip_draw(self.frameX * 20, png_height - 40 * act, 20, 38, self.x, self.y)
+            self.image.clip_draw(self.frameX * 20, png_height - 40 * act, 20, 38, self.x, self.y,60,120)
         elif act == 3:
-            self.image.clip_draw(self.frameX * 30, png_height - 40 * act, 30, 38, self.x, self.y)
+            self.image.clip_draw(self.frameX * 30, png_height - 40 * act, 30, 38, self.x, self.y,90,120)
         elif 3 < act or act < 9:
-            self.image.clip_draw(self.frameX * 30, png_height - 40 * act, 30, 38, self.x, self.y)
+            self.image.clip_draw(self.frameX * 30, png_height - 40 * act, 30, 38, self.x, self.y,90,120)
 
 class Map:
     pass
