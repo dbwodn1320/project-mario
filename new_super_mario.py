@@ -2,13 +2,12 @@ from pico2d import *
 
 class Mario:
     def __init__(self):
-        self.x, self.y = canvas_width//2, canvas_height//2
+        self.x, self.y = canvas_width//2, canvas_height//2 - 200
         self.frameX = 0
         self.action = 1
         self.dir = 0
         self.heading = 0
-        self.jump_height_check = 0
-        self.jump_up = True
+        self.jump_cnt = 0
         self.running_speed = 1.0
         self.running_cnt = 0
         self.image = load_image('mario.png')
@@ -17,7 +16,8 @@ class Mario:
     def update(self,act):
         global action
         x_speed = 10
-        jump_speed = 20
+        jump_speed = 40
+        gravity = jump_speed / 11
 
         if action == 7 or action == 8:
             self.running_cnt += 1
@@ -44,19 +44,13 @@ class Mario:
             self.x += x_speed * self.running_speed
 
         if action == 5 or action == 6:
-            if self.jump_up:
-                self.y += jump_speed
-                self.jump_height_check += jump_speed
-            else:
-                self.y -= jump_speed
-                self.jump_height_check -= jump_speed
-                if self.jump_height_check <= 0:
-                    self.jump_height_check = 0
-                    action = 1
-                    self.jump_up = True
-
-            if self.jump_height_check > jump_speed * 10:
-                self.jump_up = False
+            self.y += jump_speed - self.jump_cnt * gravity
+            self.jump_cnt += 1
+            if self.y <= canvas_height//2 - 200:
+                action = 1
+                self.y = canvas_height//2 - 200
+                self.jump_up = True
+                self.jump_cnt = 0
 
         if action == 5 or action == 6:
             if self.dir == -1:
@@ -68,7 +62,6 @@ class Mario:
                 action = 8
             elif self.dir == 1:
                 action = 7
-
         elif self.dir == 0:
             if self.heading == -1:
                 action = 2
@@ -119,15 +112,11 @@ def handle_events():
             if event.key == SDLK_LEFT:
                 mario.dir -= 1
                 mario.heading = -1
-                if action == 7 or action == 8:
-                    pass
             if event.key == SDLK_DOWN:
                 pass
             if event.key == SDLK_RIGHT:
                 mario.dir += 1
                 mario.heading = 1
-                if action == 7 or action == 8:
-                    pass
             if event.key == SDLK_LSHIFT:
                 mario.frameX = 0
                 if action == 3 or action == 4 and action != 5 and action != 6:
