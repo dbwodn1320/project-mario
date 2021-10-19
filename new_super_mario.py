@@ -17,15 +17,15 @@ class Mario:
     def update(self,act):
         global action
         x_speed = 10
-        jump_speed = 16
+        jump_speed = 20
 
         if action == 7 or action == 8:
             self.running_cnt += 1
-            if self.running_speed < 2:
-                self.running_speed += 0.02
+            if self.running_speed < 3.0:
+                self.running_speed += 0.03
         else:
             if self.running_speed > 1:
-                self.running_speed -= 0.05
+                self.running_speed -= 0.1
 
         if action == 4 or action == 8:
             if self.running_cnt > 17:
@@ -80,8 +80,6 @@ class Mario:
             elif self.dir == 1:
                 action = 3
 
-
-
     def draw(self, act):
         png_height = 656
         if act == 1 or act == 2:
@@ -121,11 +119,15 @@ def handle_events():
             if event.key == SDLK_LEFT:
                 mario.dir -= 1
                 mario.heading = -1
+                if action == 7 or action == 8:
+                    pass
             if event.key == SDLK_DOWN:
                 pass
             if event.key == SDLK_RIGHT:
                 mario.dir += 1
                 mario.heading = 1
+                if action == 7 or action == 8:
+                    pass
             if event.key == SDLK_LSHIFT:
                 mario.frameX = 0
                 if action == 3 or action == 4 and action != 5 and action != 6:
@@ -158,6 +160,12 @@ def handle_events():
                         action = 4
                     elif mario.dir == 1:
                         action = 3
+                    elif mario.dir == 0:
+                        if mario.heading == -1:
+                            action = 2
+                        elif mario.heading == 1:
+                            action = 1
+
                 elif action == 5 or action == 6:
                     if mario.dir == -1:
                         action = 6
@@ -176,7 +184,8 @@ while(running):
     clear_canvas()
     mario.draw(action)
     mario.update(action)
-    print(mario.dir, action)
+
+   #print(mario.dir, action)
     update_canvas()
     handle_events()
     delay(0.035)
