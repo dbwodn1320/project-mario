@@ -1,4 +1,5 @@
 from pico2d import *
+import random as rd
 
 class Mario:
     def __init__(self):
@@ -11,11 +12,11 @@ class Mario:
         self.running_speed = 1.0
         self.running_cnt = 0
         self.image = load_image('mario.png')
-        self.action_frame = [0,22,22,23,23,24,26,26,26]
-        #self.action_delay = [0,0.035,0.035,0.035,0.035]
+        self.action_frame = [0,22,22,23,23,23,23,26,26]
+        self.RECT = [self.x - 30, self.y - 50, self.x + 30, self.y + 50]
     def update(self,act):
         global action
-        x_speed = 10
+        x_speed = 15
         jump_speed = 40
         gravity = jump_speed / 11
 
@@ -76,7 +77,7 @@ class Mario:
     def draw(self, act):
         png_height = 656
         if act == 1 or act == 2:
-            self.image.clip_draw(self.frameX * 20, png_height - 40 * act, 20, 38, self.x, self.y,60,120)
+            self.image.clip_draw(self.frameX * 20, png_height - 40 * act, 20,38,self.x, self.y,60,120)
         elif act == 3:
             self.image.clip_draw(self.frameX * 30, png_height - 40 * act, 30, 38, self.x, self.y,90,120)
         elif 3 < act or act < 9:
@@ -89,7 +90,62 @@ class Object:
     pass
 
 class Monster:
-    pass
+    def __init__(self,kind):
+        self.x = rd.randint(0,1200)
+        self.y = 230
+        self.frame = 0
+        self.heading = 0
+        self.life = True
+        self.sprite_num = [9,7,7,7]
+        self.Kind_of_Monster = kind
+
+        if self.Kind_of_Monster == 0:
+            self.img = load_image('goomba.png')
+        elif self.Kind_of_Monster == 1:
+            self.img = load_image('goomba.png')
+        elif self.Kind_of_Monster == 2:
+            self.img = load_image('goomba.png')
+        elif self.Kind_of_Monster == 3:
+            self.img = load_image('goomba.png')
+
+    def update(self):
+        if self.heading == 0:
+            self.x -= 5
+        elif self.heading == 1:
+            self.x += 5
+
+        if mario.x > self.x:
+            self.heading = 1
+        else:
+            self.heading = 0
+
+        self.frame = (self.frame + 1) % self.sprite_num[self.Kind_of_Monster]
+    def draw(self):
+        png_h = 600
+        if self.life:
+            if self.Kind_of_Monster == 0:
+                self.img.clip_draw(self.frame * 20, png_h - 20 * (1+self.heading), 20,20,self.x, self.y, 60, 60)
+            elif self.Kind_of_Monster == 1:
+                self.img.clip_draw(self.frame * 20, png_h - 20 * 1, 20,20,self.x, self.y, 60, 60)
+            elif self.Kind_of_Monster == 2:
+                self.img.clip_draw(self.frame * 20, png_h - 20 * 1, 20,20,self.x, self.y, 60, 60)
+            elif self.Kind_of_Monster == 3:
+                self.img.clip_draw(self.frame * 20, 200, 20,20,self.x, self.y)
+        else:
+            if self.Kind_of_Monster == 0:
+                self.img.clip_draw(self.frame * 20, png_h - 20 * 1, 20,20,self.x, self.y, 60, 60)
+            elif self.Kind_of_Monster == 1:
+                self.img.clip_draw(self.frame * 20, png_h - 20 * 1, 20,20,self.x, self.y, 60, 60)
+            elif self.Kind_of_Monster == 2:
+                self.img.clip_draw(self.frame * 20, png_h - 20 * 1, 20,20,self.x, self.y, 60, 60)
+            elif self.Kind_of_Monster == 3:
+                self.img.clip_draw(self.frame * 20, 200, 20,20,self.x, self.y)
+
+def InRect(Rect,pt):
+    if Rect[0] < pt[0] and pt[0] < Rect[3] and Rect[1] < pt[1] and pt[1] < Rect[3]:
+        return True
+    else:
+        return False
 
 def handle_events():
     global running
@@ -166,14 +222,21 @@ canvas_height = 900
 action = 1
 open_canvas(canvas_width,canvas_height)
 mario = Mario()
-a = 0
+
+goombas = [Monster(0) for i in range(3)]
+# green_turtle = Monster(1)
+# red_turtle = Monster(2)
+# gr_turtle = Monster(3)
+
 running = True
 
 while(running):
     clear_canvas()
     mario.draw(action)
     mario.update(action)
-
+    for i in range(3):
+        goombas[i].update()
+        goombas[i].draw()
    #print(mario.dir, action)
     update_canvas()
     handle_events()
