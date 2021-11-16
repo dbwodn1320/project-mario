@@ -39,7 +39,6 @@ def handle_events():
         else:
             mario.handle_event(event)
 
-
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
