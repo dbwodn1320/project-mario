@@ -26,8 +26,9 @@ def handle_events():
 
 def draw():
     clear_canvas()
-    image.draw(1200, 900)
-    update_canvas()
+    image.clip_draw(0,0,1200, 900,600,450)
+    update_canvas()
+
 
 def update():
     pass

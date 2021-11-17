@@ -51,7 +51,7 @@ class IdleState:
             mario.velocity += RUN_SPEED_PPS
 
     def exit(mario, event):
-        print('idle')
+        pass
 
     def do(mario):
         if mario.dir == 1:
@@ -80,7 +80,7 @@ class RunState:
         mario.dir = clamp(-1,mario.velocity, 1)
 
     def exit(mario, event):
-        print('run')
+        pass
 
     def do(mario):
         if mario.dir == 1:
@@ -112,7 +112,7 @@ class DashState:
             mario.velocity += RUN_SPEED_PPS
 
     def exit(mario, event):
-        print('XXXXdash')
+        pass
 
     def do(mario):
         if mario.dir == 1:
@@ -146,7 +146,7 @@ class JumpState:
         mario.dir = clamp(-1, mario.velocity, 1)
 
     def exit(mario, event):
-        print('falling')
+        pass
 
     def do(mario):
         if mario.dir == 1:
@@ -185,7 +185,7 @@ class FallingState:
         mario.dir = clamp(-1, mario.velocity, 1)
 
     def exit(mario, event):
-        print('falling')
+        pass
 
     def do(mario):
         if mario.dir == 1:
@@ -216,7 +216,7 @@ class FallingState:
             pass
 
         def exit(mario, event):
-            print('XXXXdash')
+            pass
 
         def do(mario):
             if mario.dir == 1:
@@ -247,12 +247,9 @@ class LandingState:
 
     def do(mario):
         pass
-    
+
     def draw(mario):
-        if mario.dir == 1:
-            mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y,90,120)
-        else:
-            mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y,90,120)
+        pass
 
 next_state_table = {
     DashState: {SHIFT_UP:RunState,LEFT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_UP:IdleState,RIGHT_DOWN:IdleState, SPACE:DashState, UP:JumpState},
@@ -264,15 +261,18 @@ next_state_table = {
                SHIFT_DOWN:DashState,SHIFT_UP:RunState,SPACE: RunState, UP:JumpState, DOWN:RunState},
 
     JumpState: {RIGHT_UP: JumpState, LEFT_UP: JumpState, LEFT_DOWN: JumpState, RIGHT_DOWN: JumpState,
-               SHIFT_DOWN:JumpState,SHIFT_UP:JumpState,SPACE: JumpState,UP:JumpState,DOWN:FallingState,Landing: IdleState},
+               SHIFT_DOWN:JumpState,SHIFT_UP:JumpState,SPACE: JumpState,UP:JumpState,DOWN:FallingState,Landing: LandingState},
 
     FallingState: { RIGHT_UP: FallingState, LEFT_UP: FallingState, LEFT_DOWN: FallingState, RIGHT_DOWN: FallingState,
-               SHIFT_DOWN:FallingState,SHIFT_UP:FallingState,SPACE: FallingState, UP:FallingState,Landing: IdleState}
+               SHIFT_DOWN:FallingState,SHIFT_UP:FallingState,SPACE: FallingState, UP:FallingState,Landing: RunState},
+
+    # LandingState: { RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: RunState, RIGHT_DOWN: RunState,
+    #     SHIFT_DOWN: IdleState, SHIFT_UP: IdleState, SPACE: IdleState, UP: JumpState}
 }
 
 class Mario:
     def __init__(self):
-        self.acrion = 1
+        self.action = 1
         self.action_frame = [0, 22, 22, 23, 23, 23, 23, 26, 26]
         self.x, self.y = 1600 // 2, 90
         # mario is only once created, so instance image loading is fine
@@ -296,7 +296,6 @@ class Mario:
             self.cur_state.exit(self, event)
             try:
                 self.cur_state = next_state_table[self.cur_state][event]
-                print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
             except:
                 print('cur state:' , self.cur_state.__name__,'event: ',event_name[event])
                 exit(-1)
