@@ -8,6 +8,7 @@ import game_world
 
 from mario import Mario
 from ground import Ground
+from goomba import Goomba
 
 name = "MainState"
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
@@ -38,13 +39,16 @@ for line in lines:
 
 mario = None
 ground_tiles = None
+goomba = None
 
 def enter():
-    global mario,ground_tiles
+    global mario,ground_tiles,goomba
     mario = Mario()
+    goomba = Goomba([600,111])
     ground_tiles = [Ground(n,map_data[n]) for n in range(len(map_data))]
     game_world.add_object(mario, 1)
-    game_world.add_objects(ground_tiles, 0)
+    game_world.add_object(goomba, 1)
+    game_world.add_objects(ground_tiles, 1)
 
 def exit():
     game_world.clear()
@@ -68,21 +72,30 @@ def handle_events():
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
+    if goomba.death == 0:
+        if collide_M(mario,goomba,1):
+            goomba.death = 1
+            goomba.frame = 0
+            mario.jump_cnt = mario.jump_cnt / 2
+            mario.add_event(UP)
+    if goomba.death_cnt > 1.0:
+        game_world.remove_object(goomba)
+
     for tile in ground_tiles:
         if  610 > mario.x and mario.x > 590:
             tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
-        if tile.x - 50 < mario.x and mario.x < tile.x + 50:
-            if collide(mario, tile, 1):
+        if mario.x - 100 < tile.x and tile.x < mario.x + 100:
+            if collide_M(mario, tile, 0):
+                mario.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
+            if collide_M(mario, tile, 1):
                  if mario.cur_state_int == FallingState:
                     mario.add_event(Landing)
                     mario.y = tile.y + 40 + 50 + (tile.tile_num - 1) * 80 - 1
-            if collide(mario, tile, 0):
-                mario.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
         if mario.x - 25 < tile.x and tile.x < mario.x + 25:
            if mario.cur_state_int != FallingState and mario.cur_state_int != JumpState:
-                if collide(mario, tile, 1) == False:
+                if collide_M(mario, tile, 1) == False:
                     mario.add_event(DOWN)
 
 def draw():
@@ -91,7 +104,16 @@ def draw():
         game_object.draw()
     update_canvas()
 
-def collide(a, b, n):
+def collide(a, b):
+    left_a, bottom_a, right_a, top_a = a.get_bb()
+    left_b, bottom_b, right_b, top_b = b.get_bb()
+    if left_a > right_b: return False
+    if right_a < left_b: return False
+    if top_a < bottom_b: return False
+    if bottom_a > top_b: return False
+    return True
+
+def collide_M(a, b, n):
     if n == 1:
         left_a, bottom_a, right_a, top_a = a.get_bb_foot()
     elif n == 0:
