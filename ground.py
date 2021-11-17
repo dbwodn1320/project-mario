@@ -1,7 +1,4 @@
 from pico2d import *
-from mario import Mario
-
-#open_canvas(1200,900)
 
 class Ground:
     image = None

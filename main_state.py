@@ -11,6 +11,7 @@ from ground import Ground
 
 name = "MainState"
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
+DashState,IdleState,RunState,JumpState,FallingState,LandingState = range(6)
 
 f = open("map_date.txt", 'r')
 lines = f.readlines()
@@ -68,8 +69,7 @@ def update():
         game_object.update()
     for tile in ground_tiles:
         if  610 > mario.x and mario.x > 590:
-            pass
-            #tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
+            tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
         if mario.x - 100 < tile.x and tile.x < mario.x + 100:
             if collide(mario, tile, 0):
