@@ -20,6 +20,7 @@ FRAMES_PER_ACTION = [0, 22, 22, 23, 23, 23, 23, 26, 26]
 
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
 
+
 event_name = ['DEBUG_KEY','RIGHT_DOWN', 'LEFT_DOWN', 'RIGHT_UP', 'LEFT_UP', 'SLEEP_TIMER',\
 'SHIFT_DOWN','SHIFT_UP','SPACE','UP','DOWN','Landing']
 
@@ -42,13 +43,13 @@ class IdleState:
     def enter(mario, event):
         mario.jump_cnt = 0
         if event == RIGHT_DOWN:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
         elif event == LEFT_DOWN:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == RIGHT_UP:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == LEFT_UP:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
 
     def exit(mario, event):
         pass
@@ -62,22 +63,21 @@ class IdleState:
 
     def draw(mario):
         if mario.dir == 1:
-            mario.image.clip_draw(int(mario.frame) * 20, 656 - 40 * mario.action, 20, 40, mario.x, mario.y,60,120)
-        else:
+            mario.image.clip_draw(int(mario.frame) * 20, 656 - 40 * mario.action, 20, 40, mario.x, mario.y,60,60)
+        elif mario.dir == -1:
             mario.image.clip_draw(int(mario.frame) * 20, 656 - 40 * mario.action, 20, 40, mario.x, mario.y,60,120)
 
 class RunState:
     def enter(mario, event):
+        mario.jump_cnt = 0
         if event == RIGHT_DOWN:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
         elif event == LEFT_DOWN:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == RIGHT_UP:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == LEFT_UP:
-            mario.velocity += RUN_SPEED_PPS
-
-        mario.dir = clamp(-1,mario.velocity, 1)
+            mario.dir += 1
 
     def exit(mario, event):
         pass
@@ -92,7 +92,17 @@ class RunState:
             mario.frame = abs((mario.frame - FRAMES_PER_ACTION[mario.action]  * ACTION_PER_TIME * game_framework.frame_time) % \
                           mario.action_frame[mario.action])
 
-        mario.x += mario.velocity * game_framework.frame_time
+        mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
+
+        mario.dash_mult += mario.dir * 2.0 * game_framework.frame_time
+
+        if mario.dash_mult < -1.0:
+            mario.dash_mult = -1.0
+        elif mario.dash_mult > 1.0:
+            mario.dash_mult = 1.0
+
+        if 610 > mario.x and mario.x > 590:
+            mario.x = 600
 
     def draw(mario):
         if mario.dir == 1:
@@ -103,13 +113,13 @@ class RunState:
 class DashState:
     def enter(mario, event):
         if event == RIGHT_DOWN:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
         elif event == LEFT_DOWN:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == RIGHT_UP:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == LEFT_UP:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
 
     def exit(mario, event):
         pass
@@ -121,10 +131,18 @@ class DashState:
                           mario.action_frame[mario.action]
         else:
             mario.action = 8
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action]  * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
+            mario.frame = abs((mario.frame - FRAMES_PER_ACTION[mario.action]  * ACTION_PER_TIME * game_framework.frame_time) % \
+                          mario.action_frame[mario.action])
 
-        mario.x += mario.velocity * 3 * game_framework.frame_time
+        mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
+        mario.dash_mult += 2.0 * mario.dir * game_framework.frame_time
+        if mario.dash_mult < -3.0:
+            mario.dash_mult = -3.0
+        elif mario.dash_mult > 3.0:
+            mario.dash_mult = 3.0
+
+        if  610 > mario.x and mario.x > 590:
+            mario.x = 600
 
     def draw(mario):
         if mario.dir == 1:
@@ -135,15 +153,13 @@ class DashState:
 class JumpState:
     def enter(mario, event):
         if event == RIGHT_DOWN:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
         elif event == LEFT_DOWN:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == RIGHT_UP:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == LEFT_UP:
-            mario.velocity += RUN_SPEED_PPS
-
-        mario.dir = clamp(-1, mario.velocity, 1)
+            mario.dir += 1
 
     def exit(mario, event):
         pass
@@ -159,11 +175,14 @@ class JumpState:
                           mario.action_frame[mario.action]
 
         if mario.jump_cnt == 0:  mario.frame = 0
-        mario.x += mario.velocity * game_framework.frame_time
+        mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
+        if  610 > mario.x and mario.x > 590:
+            mario.x = 600
         mario.y += (MARIO_JUMP - mario.jump_cnt * GRAVITY) * game_framework.frame_time
         mario.jump_cnt += game_framework.frame_time
         if MARIO_JUMP - mario.jump_cnt * GRAVITY < 0:
             mario.add_event(DOWN)
+            mario.jump_cnt = 0
 
     def draw(mario):
         if mario.dir == 1:
@@ -174,13 +193,13 @@ class JumpState:
 class FallingState:
     def enter(mario, event):
         if event == RIGHT_DOWN:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
         elif event == LEFT_DOWN:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == RIGHT_UP:
-            mario.velocity -= RUN_SPEED_PPS
+            mario.dir -= 1
         elif event == LEFT_UP:
-            mario.velocity += RUN_SPEED_PPS
+            mario.dir += 1
 
         mario.dir = clamp(-1, mario.velocity, 1)
 
@@ -198,45 +217,17 @@ class FallingState:
                           mario.action_frame[mario.action]
 
         if mario.jump_cnt == 0:  mario.frame = 0
-        mario.x += mario.velocity * game_framework.frame_time
-        mario.y += (MARIO_JUMP - mario.jump_cnt * GRAVITY) * game_framework.frame_time
+        mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
+        if  610 > mario.x and mario.x > 590:
+            mario.x = 600
+        mario.y += -mario.jump_cnt * GRAVITY * game_framework.frame_time
         mario.jump_cnt += game_framework.frame_time
-        if mario.y < 90:
-            mario.add_event(Landing)
-            mario.y = 90
 
     def draw(mario):
         if mario.dir == 1:
             mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y,90,120)
         else:
             mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y,90,120)
-
-    class DashState:
-        def enter(mario, event):
-            pass
-
-        def exit(mario, event):
-            pass
-
-        def do(mario):
-            if mario.dir == 1:
-                mario.action = 7
-                mario.frame = (mario.frame + FRAMES_PER_ACTION[
-                    mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                              mario.action_frame[mario.action]
-            else:
-                mario.action = 8
-                mario.frame = (mario.frame + FRAMES_PER_ACTION[
-                    mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                              mario.action_frame[mario.action]
-
-            mario.x += mario.velocity * 3 * game_framework.frame_time
-
-        def draw(mario):
-            if mario.dir == 1:
-                mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y, 90, 120)
-            else:
-                mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y, 90, 120)
 
 class LandingState:
     def enter(mario, event):
@@ -252,13 +243,13 @@ class LandingState:
         pass
 
 next_state_table = {
-    DashState: {SHIFT_UP:RunState,LEFT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_UP:IdleState,RIGHT_DOWN:IdleState, SPACE:DashState, UP:JumpState},
+    DashState: {SHIFT_UP:RunState,LEFT_UP:RunState,LEFT_DOWN:RunState,RIGHT_UP:RunState,RIGHT_DOWN:RunState, SPACE:DashState, UP:JumpState},
 
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
-                SHIFT_UP: IdleState,SHIFT_DOWN:IdleState,SPACE: IdleState,UP:JumpState, DOWN:IdleState},
+                SHIFT_UP: IdleState,SHIFT_DOWN:IdleState,SPACE: IdleState,UP:JumpState, DOWN:FallingState},
 
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
-               SHIFT_DOWN:DashState,SHIFT_UP:RunState,SPACE: RunState, UP:JumpState, DOWN:RunState},
+               SHIFT_DOWN:DashState,SHIFT_UP:RunState,SPACE: RunState, UP:JumpState, DOWN:FallingState, Landing:RunState},
 
     JumpState: {RIGHT_UP: JumpState, LEFT_UP: JumpState, LEFT_DOWN: JumpState, RIGHT_DOWN: JumpState,
                SHIFT_DOWN:JumpState,SHIFT_UP:JumpState,SPACE: JumpState,UP:JumpState,DOWN:FallingState,Landing: LandingState},
@@ -266,25 +257,26 @@ next_state_table = {
     FallingState: { RIGHT_UP: FallingState, LEFT_UP: FallingState, LEFT_DOWN: FallingState, RIGHT_DOWN: FallingState,
                SHIFT_DOWN:FallingState,SHIFT_UP:FallingState,SPACE: FallingState, UP:FallingState,Landing: RunState},
 
-    # LandingState: { RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: RunState, RIGHT_DOWN: RunState,
-    #     SHIFT_DOWN: IdleState, SHIFT_UP: IdleState, SPACE: IdleState, UP: JumpState}
+    LandingState: { RIGHT_UP: RunState, LEFT_UP: RunState, LEFT_DOWN: RunState, RIGHT_DOWN: RunState,
+       SHIFT_DOWN: RunState, SHIFT_UP: RunState, SPACE: RunState, UP: RunState}
 }
 
 class Mario:
     def __init__(self):
         self.action = 1
         self.action_frame = [0, 22, 22, 23, 23, 23, 23, 26, 26]
-        self.x, self.y = 1600 // 2, 90
+        self.x, self.y = 100, 125
         # mario is only once created, so instance image loading is fine
         self.image = load_image('mario.png')
         self.font = load_font('ENCR10B.TTF',16)
-        self.dir = 1
-        self.velocity = 0
+        self.dir = 0
+        self.velocity = RUN_SPEED_PPS
         self.frame = 0
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
         self.jump_cnt = 0
+        self.dash_mult = 0.0
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -295,16 +287,32 @@ class Mario:
             event = self.event_que.pop()
             self.cur_state.exit(self, event)
             try:
+                print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
+                print(self.dir)
                 self.cur_state = next_state_table[self.cur_state][event]
             except:
                 print('cur state:' , self.cur_state.__name__,'event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
+            if self.dash_mult != 0:
+                if self.dash_mult > 0:
+                    self.dash_mult -= 1.0 * game_framework.frame_time
+                elif self.dash_mult < 0:
+                    self.dash_mult += 1.0 * game_framework.frame_time
+
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.x - 60, self.y +50, '(Time: %3.2f)'% get_time(),(255,255,0))
+        self.font.draw(self.x - 60, self.y + 50, '(Time: %3.2f)'% get_time(),(255,255,0))
+        draw_rectangle(*self.get_bb_body())
+        draw_rectangle(*self.get_bb_foot())
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
+
+    def get_bb_body(self):
+        return self.x - 27, self.y - 30, self.x + 27, self.y + 50
+
+    def get_bb_foot(self):
+        return self.x - 25, self.y - 50, self.x + 25, self.y - 30
