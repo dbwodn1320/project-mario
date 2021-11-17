@@ -17,22 +17,24 @@ f = open("map_date.txt", 'r')
 lines = f.readlines()
 f.close()
 map_data = []
+
 for line in lines:
     line = line.strip()
     tmp = []
     if line == "=":
         map_data.append(tmp)
     else:
+        t = line
         line = int(line)
         while 1:
             tmp.append(line % 10)
             line = line // 10
             if line == 0: break
-
+        if len(t) > 1:
+            if t[0] == '0':
+                tmp.append(0)
         tmp.reverse()
         map_data.append(tmp)
-
-#print(map_data)
 
 mario = None
 ground_tiles = None
@@ -64,28 +66,24 @@ def handle_events():
             mario.handle_event(event)
 
 def update():
-    #print(mario.cur_state)
     for game_object in game_world.all_objects():
         game_object.update()
     for tile in ground_tiles:
         if  610 > mario.x and mario.x > 590:
             tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
-        if mario.x - 100 < tile.x and tile.x < mario.x + 100:
+        if tile.x - 50 < mario.x and mario.x < tile.x + 50:
+            if collide(mario, tile, 1):
+                 if mario.cur_state_int == FallingState:
+                    mario.add_event(Landing)
+                    mario.y = tile.y + 40 + 50 + (tile.tile_num - 1) * 80 - 1
             if collide(mario, tile, 0):
                 mario.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
-        if tile.x - 50 < mario.x and mario.x < tile.x + 50:
-            if collide(mario, tile, 1):
-                 if mario.action == 5 or mario.action == 6:
-                    mario.add_event(Landing)
-                    mario.y = tile.y + 40 + 50 + (tile.tile_num - 1) * 80 - 1
-
-                # else:
-                #     if collide(mario, tile, 1) == False:
-                #         mario.add_event(DOWN)
-
-
+        if mario.x - 25 < tile.x and tile.x < mario.x + 25:
+           if mario.cur_state_int != FallingState and mario.cur_state_int != JumpState:
+                if collide(mario, tile, 1) == False:
+                    mario.add_event(DOWN)
 
 def draw():
     clear_canvas()

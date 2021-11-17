@@ -41,6 +41,7 @@ key_event_table = {
 class IdleState:
     def enter(mario, event):
         mario.jump_cnt = 0
+        mario.cur_state_int = 1
         if event == RIGHT_DOWN:
             mario.dir += 1
             mario.heading = 1
@@ -72,6 +73,7 @@ class IdleState:
 
 class RunState:
     def enter(mario, event):
+        mario.cur_state_int = 2
         mario.jump_cnt = 0
         if event == RIGHT_DOWN:
             mario.dir += 1
@@ -116,6 +118,7 @@ class RunState:
 
 class DashState:
     def enter(mario, event):
+        mario.cur_state_int = 0
         if event == RIGHT_DOWN:
             mario.dir += 1
             mario.heading = 1
@@ -152,9 +155,9 @@ class DashState:
                     mario.action_frame[mario.action])
 
 
-        mario.dash_timer += FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time
+        mario.dash_timer +=  FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
-        mario.dash_mult += 8.0 * mario.dir * game_framework.frame_time
+        mario.dash_mult += 5.0 * mario.dir * game_framework.frame_time
         if mario.dash_mult < -3.0:
             mario.dash_mult = -3.0
         elif mario.dash_mult > 3.0:
@@ -171,6 +174,8 @@ class DashState:
 
 class JumpState:
     def enter(mario, event):
+        mario.frame = 0
+        mario.cur_state_int = 3
         if event == RIGHT_DOWN:
             mario.dir += 1
             mario.heading = 1
@@ -195,7 +200,6 @@ class JumpState:
             mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
                           mario.action_frame[mario.action]
 
-        if mario.jump_cnt == 0:  mario.frame = 0
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
         mario.dash_mult += mario.dir * 4.0 * game_framework.frame_time
         if mario.dash_mult < -1.0:
@@ -218,6 +222,7 @@ class JumpState:
 
 class FallingState:
     def enter(mario, event):
+        mario.cur_state_int = 4
         if event == RIGHT_DOWN:
             mario.dir += 1
             mario.heading = 1
@@ -242,7 +247,6 @@ class FallingState:
             mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
                           mario.action_frame[mario.action]
 
-        if mario.jump_cnt == 0:  mario.frame = 0
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
         mario.dash_mult += mario.dir * 4.0 * game_framework.frame_time
         if mario.dash_mult < -1.0:
@@ -262,7 +266,7 @@ class FallingState:
 
 class LandingState:
     def enter(mario, event):
-        pass
+        mario.cur_state_int = 5
 
     def exit(mario, event):
         pass
@@ -274,7 +278,7 @@ class LandingState:
         pass
 
 next_state_table = {
-    DashState: {SHIFT_UP:RunState,LEFT_UP:RunState,LEFT_DOWN:RunState,RIGHT_UP:RunState,RIGHT_DOWN:RunState, SPACE:DashState, UP:JumpState},
+    DashState: {SHIFT_UP:RunState,SHIFT_DOWN:RunState,LEFT_UP:RunState,LEFT_DOWN:RunState,RIGHT_UP:RunState,RIGHT_DOWN:RunState, SPACE: DashState,UP: DashState},
 
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
                 SHIFT_UP: IdleState,SHIFT_DOWN:IdleState,SPACE: IdleState,UP:JumpState, DOWN:FallingState},
@@ -286,7 +290,7 @@ next_state_table = {
                SHIFT_DOWN:JumpState,SHIFT_UP:JumpState,SPACE: JumpState,UP:JumpState,DOWN:FallingState,Landing: LandingState},
 
     FallingState: { RIGHT_UP: FallingState, LEFT_UP: FallingState, LEFT_DOWN: FallingState, RIGHT_DOWN: FallingState,
-               SHIFT_DOWN:FallingState,SHIFT_UP:FallingState,SPACE: FallingState, UP:FallingState,Landing: RunState},
+               SHIFT_DOWN:FallingState,SHIFT_UP:FallingState,SPACE: FallingState, UP:JumpState,Landing: RunState},
 
     LandingState: { RIGHT_UP: RunState, LEFT_UP: RunState, LEFT_DOWN: RunState, RIGHT_DOWN: RunState,
        SHIFT_DOWN: RunState, SHIFT_UP: RunState, SPACE: RunState, UP: RunState}
@@ -309,6 +313,7 @@ class Mario:
         self.jump_cnt = 0
         self.dash_mult = 0.0
         self.heading = 1
+        self.cur_state_int = 1
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -348,4 +353,4 @@ class Mario:
         return self.x - 27, self.y - 30, self.x + 27, self.y + 50
 
     def get_bb_foot(self):
-        return self.x - 25, self.y - 50, self.x + 25, self.y - 30
+        return self.x - 20, self.y - 50, self.x + 20, self.y - 30
