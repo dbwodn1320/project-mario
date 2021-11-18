@@ -72,6 +72,7 @@ def handle_events():
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
+
     if goomba.death == 0:
         if collide_M(mario,goomba,1):
             goomba.death = 1
@@ -80,11 +81,10 @@ def update():
             mario.add_event(UP)
     if goomba.death_cnt > 1.0:
         game_world.remove_object(goomba)
+    if 610 > mario.x and mario.x > 590:
+        goomba.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
     for tile in ground_tiles:
-        if  610 > mario.x and mario.x > 590:
-            tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
-
         if mario.x - 100 < tile.x and tile.x < mario.x + 100:
             if collide_M(mario, tile, 0):
                 mario.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
@@ -97,6 +97,9 @@ def update():
            if mario.cur_state_int != FallingState and mario.cur_state_int != JumpState:
                 if collide_M(mario, tile, 1) == False:
                     mario.add_event(DOWN)
+
+        if  610 > mario.x and mario.x > 590:
+            tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
 def draw():
     clear_canvas()
