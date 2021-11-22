@@ -2,6 +2,9 @@ import game_framework
 from pico2d import *
 import game_world
 import time
+import collision
+import server
+
 frame_time = 0.0
 
 PIXEL_PER_METER = (100.0 / 1.5)
@@ -107,9 +110,6 @@ class RunState:
         elif mario.dash_mult > 1.0:
             mario.dash_mult = 1.0
 
-        if 610 > mario.x and mario.x > 590:
-            mario.x = 600
-
     def draw(mario):
         if mario.heading == 1:
             mario.image.clip_draw(int(mario.frame) * 30, 656 - 40 * mario.action, 30, 40, mario.x, mario.y,90,120)
@@ -162,9 +162,6 @@ class DashState:
             mario.dash_mult = -3.0
         elif mario.dash_mult > 3.0:
             mario.dash_mult = 3.0
-
-        if  610 > mario.x and mario.x > 590:
-            mario.x = 600
 
     def draw(mario):
             if mario.heading == 1:
@@ -278,7 +275,7 @@ class LandingState:
         pass
 
 next_state_table = {
-    DashState: {SHIFT_UP:RunState,SHIFT_DOWN:RunState,LEFT_UP:RunState,LEFT_DOWN:RunState,RIGHT_UP:RunState,RIGHT_DOWN:RunState, SPACE: DashState,UP: DashState},
+    DashState: {SHIFT_UP:RunState,SHIFT_DOWN:RunState,LEFT_UP:RunState,LEFT_DOWN:RunState,RIGHT_UP:RunState,RIGHT_DOWN:RunState, SPACE: DashState,UP: DashState,DOWN: FallingState},
 
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
                 SHIFT_UP: IdleState,SHIFT_DOWN:IdleState,SPACE: IdleState,UP:JumpState, DOWN:FallingState},
@@ -331,6 +328,26 @@ class Mario:
                 print('cur state:' , self.cur_state.__name__,'event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
+        if 610 > self.x and self.x > 590:
+            self.x = 600
+
+        for tile in server.ground_tiles:
+            if 610 > self.x and self.x > 590:
+                tile.x -= self.velocity * self.dash_mult * game_framework.frame_time
+                if collision.collide_M(server.mario, tile, 0):
+                    for tile1 in server.ground_tiles:
+                        tile1.x += self.velocity * self.dash_mult * game_framework.frame_time
+
+        for tile in server.ground_tiles.copy():
+            if self.x - 100 < tile.x and tile.x < self.x + 100:
+                if collision.collide_M(server.mario, tile, 1):
+                    if self.cur_state_int == server.FallingState:
+                        self.add_event(Landing)
+                        self.y = tile.y + 40 + 50 + (tile.tile_num - 1) * 80 - 1
+                if self.x - 25 < tile.x and tile.x < self.x + 25:
+                    if self.cur_state_int != server.FallingState and self.cur_state_int != server.JumpState:
+                        if collision.collide_M(server.mario, tile, 1) == False:
+                            self.add_event(DOWN)
 
     def draw(self):
         self.cur_state.draw(self)

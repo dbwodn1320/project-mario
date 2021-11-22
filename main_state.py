@@ -9,46 +9,22 @@ import game_world
 from mario import Mario
 from ground import Ground
 from goomba import Goomba
+from green_turtle import Green_turtle
+import server
 
 name = "MainState"
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
 DashState,IdleState,RunState,JumpState,FallingState,LandingState = range(6)
 
-f = open("map_date.txt", 'r')
-lines = f.readlines()
-f.close()
-map_data = []
-
-for line in lines:
-    line = line.strip()
-    tmp = []
-    if line == "=":
-        map_data.append(tmp)
-    else:
-        t = line
-        line = int(line)
-        while 1:
-            tmp.append(line % 10)
-            line = line // 10
-            if line == 0: break
-        if len(t) > 1:
-            if t[0] == '0':
-                tmp.append(0)
-        tmp.reverse()
-        map_data.append(tmp)
-
-mario = None
-ground_tiles = None
-goomba = None
-
 def enter():
-    global mario,ground_tiles,goomba
-    mario = Mario()
-    goomba = Goomba([600,111])
-    ground_tiles = [Ground(n,map_data[n]) for n in range(len(map_data))]
-    game_world.add_object(mario, 1)
-    game_world.add_object(goomba, 1)
-    game_world.add_objects(ground_tiles, 1)
+    server.mario = Mario()
+    server.goomba = Goomba([600,111])
+    server.green_trutle = Green_turtle([700,111])
+    server.ground_tiles = [Ground(n,server.map_data[n]) for n in range(len(server.map_data))]
+    game_world.add_object(server.mario, 1)
+    game_world.add_object(server.goomba, 1)
+    game_world.add_object(server.green_trutle, 1)
+    game_world.add_objects(server.ground_tiles, 1)
 
 def exit():
     game_world.clear()
@@ -67,67 +43,17 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
                 game_framework.quit()
         else:
-            mario.handle_event(event)
+            server.mario.handle_event(event)
 
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
-
-    if goomba.death == 0:
-        if collide_M(mario,goomba,1):
-            goomba.death = 1
-            goomba.frame = 0
-            mario.jump_cnt = mario.jump_cnt / 2
-            mario.add_event(UP)
-    if goomba.death_cnt > 1.0:
-        game_world.remove_object(goomba)
-    if 610 > mario.x and mario.x > 590:
-        goomba.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
-
-    for tile in ground_tiles:
-        if mario.x - 100 < tile.x and tile.x < mario.x + 100:
-            if collide_M(mario, tile, 0):
-                mario.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
-            if collide_M(mario, tile, 1):
-                 if mario.cur_state_int == FallingState:
-                    mario.add_event(Landing)
-                    mario.y = tile.y + 40 + 50 + (tile.tile_num - 1) * 80 - 1
-
-        if mario.x - 25 < tile.x and tile.x < mario.x + 25:
-           if mario.cur_state_int != FallingState and mario.cur_state_int != JumpState:
-                if collide_M(mario, tile, 1) == False:
-                    mario.add_event(DOWN)
-
-        if  610 > mario.x and mario.x > 590:
-            tile.x -= mario.velocity * mario.dash_mult * game_framework.frame_time
 
 def draw():
     clear_canvas()
     for game_object in game_world.all_objects():
         game_object.draw()
     update_canvas()
-
-def collide(a, b):
-    left_a, bottom_a, right_a, top_a = a.get_bb()
-    left_b, bottom_b, right_b, top_b = b.get_bb()
-    if left_a > right_b: return False
-    if right_a < left_b: return False
-    if top_a < bottom_b: return False
-    if bottom_a > top_b: return False
-    return True
-
-def collide_M(a, b, n):
-    if n == 1:
-        left_a, bottom_a, right_a, top_a = a.get_bb_foot()
-    elif n == 0:
-        left_a, bottom_a, right_a, top_a = a.get_bb_body()
-
-    left_b, bottom_b, right_b, top_b = b.get_bb()
-    if left_a > right_b: return False
-    if right_a < left_b: return False
-    if top_a < bottom_b: return False
-    if bottom_a > top_b: return False
-    return True
 
 
 
