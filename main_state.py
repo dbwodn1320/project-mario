@@ -13,14 +13,13 @@ from green_turtle import Green_turtle
 import server
 
 name = "MainState"
-DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
-DashState,IdleState,RunState,JumpState,FallingState,LandingState = range(6)
 
 def enter():
     server.mario = Mario()
     server.goomba = Goomba([600,111])
-    server.green_trutle = Green_turtle([700,111])
+    server.green_trutle = Green_turtle([700,125])
     server.ground_tiles = [Ground(n,server.map_data[n]) for n in range(len(server.map_data))]
+
     game_world.add_object(server.mario, 1)
     game_world.add_object(server.goomba, 1)
     game_world.add_object(server.green_trutle, 1)

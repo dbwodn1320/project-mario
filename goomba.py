@@ -49,13 +49,24 @@ class Goomba:
 
         if self.death == 0:
             self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
-            if collision.collide_M(server.mario, server.goomba, 1):
-                self.death = 1
-                self.frame = 0
-                server.mario.jump_cnt = server.mario.jump_cnt / 2
-                server.mario.add_event(server.UP)
+            if server.mario.cur_state_int == server.FallingState:
+                if collision.collide_M(server.mario, self , 1):
+                    self.death = 1
+                    self.frame = 0
+                    server.mario.jump_cnt = server.mario.jump_cnt / 2
+                    server.mario.add_event(server.UP)
+            else:
+                pass
         if self.death_cnt > 1.0:
             game_world.remove_object(server.goomba)
+
+        for tile in server.ground_tiles:
+            if tile.y + 40 + 80 * (tile.tile_num -1) >= self.y:
+                if collision.collide(tile, server.green_trutle):
+                    if self.dir == 1:
+                        self.dir = -1
+                    elif self.dir == -1:
+                        self.dir = 1
 
     def draw(self):
         if -100 < self.x and self.x < 1300 :
