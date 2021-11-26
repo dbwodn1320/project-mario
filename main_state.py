@@ -16,10 +16,9 @@ name = "MainState"
 
 def enter():
     server.mario = Mario()
-    server.goomba = Goomba([600,111])
-    server.green_trutle = Green_turtle([700,125])
+    server.goomba = Goomba([1600,80 + 31])
+    server.green_trutle = Green_turtle([2800,900])
     server.ground_tiles = [Ground(n,server.map_data[n]) for n in range(len(server.map_data))]
-
     game_world.add_object(server.mario, 1)
     game_world.add_object(server.goomba, 1)
     game_world.add_object(server.green_trutle, 1)

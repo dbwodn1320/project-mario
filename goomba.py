@@ -26,47 +26,68 @@ class Goomba:
         self.size_on_canvas = 60 # 가로세로 약 0.9m
         self.x = pt[0]
         self.y = pt[1]
-        self.dir = -1
+        self.dir = 1
         self.frame = 0
         self.action = 1
         self.death = 0
         self.death_cnt = 0
+        self.gravity_cnt = 0
+        self.active = 0
+        self.floor = 0
 
     def update(self):
-        if self.death == 1:
-            self.action = 3
-            if self.frame > 1:
-                self.frame = 1
-            self.death_cnt += game_framework.frame_time
-        elif self.dir == -1: self.action = 1
-        elif self.dir == 1: self.action = 2
-
-        self.frame = (self.frame + FRAMES_PER_ACTION[self.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                      FRAMES_PER_ACTION[self.action]
-
         if 610 > server.mario.x and server.mario.x > 590:
-             server.goomba.x -= server.mario.velocity * server.mario.dash_mult * game_framework.frame_time
+             self.x -= server.mario.velocity * server.mario.dash_mult * game_framework.frame_time
 
-        if self.death == 0:
-            self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
-            if server.mario.cur_state_int == server.FallingState:
-                if collision.collide_M(server.mario, self , 1):
-                    self.death = 1
-                    self.frame = 0
-                    server.mario.jump_cnt = server.mario.jump_cnt / 2
-                    server.mario.add_event(server.UP)
-            else:
-                pass
-        if self.death_cnt > 1.0:
-            game_world.remove_object(server.goomba)
+        if self.active == 0:
+            if 0 < self.x and self.x < 1200:
+                self.active = 1
 
-        for tile in server.ground_tiles:
-            if tile.y + 40 + 80 * (tile.tile_num -1) >= self.y:
-                if collision.collide(tile, server.green_trutle):
-                    if self.dir == 1:
-                        self.dir = -1
-                    elif self.dir == -1:
-                        self.dir = 1
+        elif self.active == 1:
+            if self.death == 1:
+                self.action = 3
+                if self.frame > 1:
+                    self.frame = 1
+                self.death_cnt += game_framework.frame_time
+            elif self.dir == -1: self.action = 1
+            elif self.dir == 1: self.action = 2
+
+            self.frame = (self.frame + FRAMES_PER_ACTION[self.action] * ACTION_PER_TIME * game_framework.frame_time) % \
+                          FRAMES_PER_ACTION[self.action]
+
+            if self.death == 0:
+                self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+                if server.mario.cur_state_int == server.FallingState:
+                    if collision.collide_M(server.mario, self, 1):
+                        self.death = 1
+                        self.frame = 0
+                        server.mario.jump_cnt = server.mario.jump_cnt / 2
+                        server.mario.add_event(server.UP)
+
+                if server.green_trutle.shell == 1:
+                    if collision.collide_M(server.green_trutle, self, 1):
+                        self.death = 1
+
+            if self.death_cnt > 1.0:
+                game_world.remove_object(self)
+
+            for tile in server.ground_tiles:
+                if tile.top_y >= self.y:
+                    if self.x - 35 < tile.x and tile.x < self.x + 35:
+                        if collision.collide(tile, self):
+                            if self.dir == 1:
+                                self.dir = -1
+                            elif self.dir == -1:
+                                self.dir = 1
+
+                if tile.x - 30 < self.x and self.x < tile.x + 30:
+                    self.floor = tile.top_y
+
+            self.y -= GRAVITY * self.gravity_cnt * game_framework.frame_time
+            self.gravity_cnt += game_framework.frame_time
+            if self.y < self.floor + 31:
+                self.y = self.floor + 31
+                self.gravity_cnt = 0
 
     def draw(self):
         if -100 < self.x and self.x < 1300 :

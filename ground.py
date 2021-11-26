@@ -15,6 +15,8 @@ class Ground:
         self.tile_num = len(self.map_data)
         self.x = self.size_on_canvas * n
         self.y = self.size_on_canvas / 2
+        self.top_y = self.y + 40 + 80 * (self.tile_num -1)
+        self.num = n
 
     def update(self):
         pass
