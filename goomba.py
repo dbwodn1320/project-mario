@@ -39,6 +39,9 @@ class Goomba:
         if 610 > server.mario.x and server.mario.x > 590:
              self.x -= server.mario.velocity * server.mario.dash_mult * game_framework.frame_time
 
+        if self.y < 0:
+            game_world.remove_object(self)
+
         if self.active == 0:
             if 0 < self.x and self.x < 1200:
                 self.active = 1
@@ -82,6 +85,8 @@ class Goomba:
 
                 if tile.x - 30 < self.x and self.x < tile.x + 30:
                     self.floor = tile.top_y
+                    if self.floor == 0:
+                        self.floor = -100
 
             self.y -= GRAVITY * self.gravity_cnt * game_framework.frame_time
             self.gravity_cnt += game_framework.frame_time

@@ -317,14 +317,14 @@ class Mario:
             self.cur_state.enter(self, event)
         if 610 > self.x and self.x > 590:
             self.x = 600
-
-        for tile in server.ground_tiles:
-            if 610 > self.x and self.x > 590:
-                tile.x -= self.velocity * self.dash_mult * game_framework.frame_time
+            for tile in server.ground_tiles:
                 if collision.collide_M(server.mario, tile, 0):
                     for tile1 in server.ground_tiles:
                         tile1.x += self.velocity * self.dash_mult * game_framework.frame_time
 
+                    server.green_trutle.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    server.goomba.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    break
         for tile in server.ground_tiles:
             if self.x - 100 < tile.x and tile.x < self.x + 100:
                 if collision.collide_M(server.mario, tile, 1) and tile.tile_num != 0:
