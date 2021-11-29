@@ -66,6 +66,7 @@ class IdleState:
             mario.action = 1
         else:
             mario.action = 2
+
         mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % mario.action_frame[mario.action]
 
     def draw(mario):
@@ -138,7 +139,6 @@ class DashState:
             else:
                 mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
                               mario.action_frame[mario.action]
-
         else:
             mario.action = 8
             if mario.dash_timer > 17:
@@ -152,10 +152,10 @@ class DashState:
                     (mario.frame - FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
                     mario.action_frame[mario.action])
 
-
         mario.dash_timer += FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
         mario.dash_mult += 5.0 * mario.dir * game_framework.frame_time
+
         if mario.dash_mult < -3.0:
             mario.dash_mult = -3.0
         elif mario.dash_mult > 3.0:
@@ -185,12 +185,10 @@ class JumpState:
     def do(mario):
         if mario.heading == 1:
             mario.action = 5
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
         else:
             mario.action = 6
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
+        mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
+                      mario.action_frame[mario.action]
 
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
         mario.dash_mult += mario.dir * 4.0 * game_framework.frame_time
@@ -198,8 +196,7 @@ class JumpState:
             mario.dash_mult = -1.0
         elif mario.dash_mult > 1.0:
             mario.dash_mult = 1.0
-        if  610 > mario.x and mario.x > 590:
-            mario.x = 600
+
         mario.y += (MARIO_JUMP - mario.jump_cnt * GRAVITY) * game_framework.frame_time
         mario.jump_cnt += game_framework.frame_time
         if MARIO_JUMP - mario.jump_cnt * GRAVITY < 0:
@@ -229,12 +226,11 @@ class FallingState:
     def do(mario):
         if mario.heading == 1:
             mario.action = 5
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
         else:
             mario.action = 6
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
+
+        mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
+                      mario.action_frame[mario.action]
 
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
         mario.dash_mult += mario.dir * 4.0 * game_framework.frame_time
@@ -242,8 +238,7 @@ class FallingState:
             mario.dash_mult = -1.0
         elif mario.dash_mult > 1.0:
             mario.dash_mult = 1.0
-        if  610 > mario.x and mario.x > 590:
-            mario.x = 600
+
         mario.y += -mario.jump_cnt * GRAVITY * game_framework.frame_time
         mario.jump_cnt += game_framework.frame_time
 
@@ -253,6 +248,7 @@ class FallingState:
 class LandingState:
     def enter(mario, event):
         mario.cur_state_int = 5
+        mario.jump_cnt = 0
 
     def exit(mario, event):
         pass
@@ -267,7 +263,7 @@ next_state_table = {
     DashState: {SHIFT_UP:RunState,SHIFT_DOWN:RunState,LEFT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_UP:IdleState,RIGHT_DOWN:IdleState, SPACE: DashState,UP: JumpState,DOWN: FallingState},
 
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
-                SHIFT_UP: IdleState,SHIFT_DOWN:IdleState,SPACE: IdleState,UP:JumpState, DOWN:FallingState},
+                SHIFT_UP: IdleState,SHIFT_DOWN:IdleState,SPACE: IdleState,UP:JumpState, DOWN:FallingState,Landing:IdleState},
 
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
                SHIFT_DOWN:DashState,SHIFT_UP:RunState,SPACE: RunState, UP:JumpState, DOWN:FallingState, Landing:RunState},
@@ -286,7 +282,7 @@ class Mario:
     def __init__(self):
         self.action = 1
         self.action_frame = [0, 22, 22, 23, 23, 23, 23, 26, 26]
-        self.x, self.y = 100, 125
+        self.x, self.y = 100, 124.9
         # mario is only once created, so instance image loading is fine
         self.image = load_image('mario.png')
         self.font = load_font('ENCR10B.TTF',16)
@@ -300,6 +296,7 @@ class Mario:
         self.dash_mult = 0.0
         self.heading = 1
         self.cur_state_int = 1
+        self.small_jump = False
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -311,30 +308,51 @@ class Mario:
             self.cur_state.exit(self, event)
             try:
                 self.cur_state = next_state_table[self.cur_state][event]
+                #print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
             except:
                 print('cur state:' , self.cur_state.__name__,'event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
+
         if 610 > self.x and self.x > 590:
             self.x = 600
             for tile in server.ground_tiles:
                 if collision.collide_M(server.mario, tile, 0):
                     for tile1 in server.ground_tiles:
                         tile1.x += self.velocity * self.dash_mult * game_framework.frame_time
-
-                    server.green_trutle.x += self.velocity * self.dash_mult * game_framework.frame_time
-                    server.goomba.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    for turtle in server.green_trutles:
+                        turtle.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    for goomba in server.goombas:
+                        goomba.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    for block in server.blocks:
+                        block.x += self.velocity * self.dash_mult * game_framework.frame_time
                     break
-        for tile in server.ground_tiles:
-            if self.x - 100 < tile.x and tile.x < self.x + 100:
-                if collision.collide_M(server.mario, tile, 1) and tile.tile_num != 0:
-                    if self.cur_state_int == server.FallingState:
+
+        if self.cur_state_int == server.FallingState:
+            for block in server.blocks:
+                if self.x - 100 < block.x and block.x < self.x + 100:
+                    if collision.collide_M(server.mario, block, 1):
                         self.add_event(Landing)
-                        self.y = tile.top_y + 50.1
-                if self.x - 25 < tile.x and tile.x < self.x + 25:
-                    if self.cur_state_int != server.FallingState and self.cur_state_int != server.JumpState:
-                        if collision.collide_M(server.mario, tile, 1) == False:
-                            self.add_event(DOWN)
+                        self.y = block.y + 40 + 49.9
+                        break
+            for tile in server.ground_tiles:
+                if self.x - 100 < tile.x and tile.x < self.x + 100:
+                    if collision.collide_M(server.mario, tile, 1) and tile.tile_num != 0:
+                        self.add_event(Landing)
+                        self.y = tile.top_y + 49.9
+                        break
+
+        elif self.cur_state_int != server.JumpState:
+            a = 0
+            for block in server.blocks:
+                if not collision.collide_M(server.mario, block, 1):
+                    a += 1
+            for tile in server.ground_tiles:
+                if not collision.collide_M(server.mario, tile, 1):
+                    a += 1
+            if a == len(server.ground_tiles) + len(server.blocks):
+                server.mario.add_event(DOWN)
+
 
     def draw(self):
         self.cur_state.draw(self)
@@ -350,8 +368,14 @@ class Mario:
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
-            key_event = key_event_table[(event.type, event.key)]
-            self.add_event(key_event)
+            if self.cur_state_int == server.FallingState and event.key == SDLK_UP:
+                pass
+            else:
+                key_event = key_event_table[(event.type, event.key)]
+                self.add_event(key_event)
+
+    def get_bb(self):
+        return self.x - 27, self.y - 30, self.x + 27, self.y + 50
 
     def get_bb_body(self):
         return self.x - 27, self.y - 30, self.x + 27, self.y + 50

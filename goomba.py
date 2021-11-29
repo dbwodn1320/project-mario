@@ -19,14 +19,14 @@ FRAMES_PER_ACTION = [0, 9, 9, 2]
 
 class Goomba:
     image = None
-    def __init__(self, pt):
+    def __init__(self, n):
         if Goomba.image == None:
             Goomba.image = load_image('goomba.png')
         self.size = 20, 20
         self.size_on_canvas = 60 # 가로세로 약 0.9m
-        self.x = pt[0]
-        self.y = pt[1]
-        self.dir = 1
+        self.x = server.ground_tiles[n].x
+        self.y = server.ground_tiles[n].top_y + 31
+        self.dir = -1
         self.frame = 0
         self.action = 1
         self.death = 0
@@ -67,9 +67,10 @@ class Goomba:
                         server.mario.jump_cnt = server.mario.jump_cnt / 2
                         server.mario.add_event(server.UP)
 
-                if server.green_trutle.shell == 1:
-                    if collision.collide_M(server.green_trutle, self, 1):
-                        self.death = 1
+                for turtle in server.green_trutles:
+                    if turtle.shell == 1:
+                        if collision.collide_M(turtle, self, 1):
+                            self.death = 1
 
             if self.death_cnt > 1.0:
                 game_world.remove_object(self)

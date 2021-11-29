@@ -10,19 +10,25 @@ from mario import Mario
 from ground import Ground
 from goomba import Goomba
 from green_turtle import Green_turtle
+from block import Block
 import server
+import random
 
 name = "MainState"
 
 def enter():
     server.mario = Mario()
-    server.goomba = Goomba([1600,80 + 31])
-    server.green_trutle = Green_turtle([2800,900])
     server.ground_tiles = [Ground(n,server.map_data[n]) for n in range(len(server.map_data))]
+    map_len = len(server.ground_tiles)
+    server.goombas = [Goomba(random.randint(10,map_len - 1)) for i in range(10)]
+    server.green_trutles = [Green_turtle(random.randint(10,map_len - 1)) for j in range(10)]
+    server.blocks = [ Block(j) for j in range(5)]
+
     game_world.add_object(server.mario, 1)
-    game_world.add_object(server.goomba, 1)
-    game_world.add_object(server.green_trutle, 1)
+    game_world.add_objects(server.goombas, 1)
+    game_world.add_objects(server.green_trutles, 1)
     game_world.add_objects(server.ground_tiles, 1)
+    game_world.add_objects(server.blocks, 1)
 
 def exit():
     game_world.clear()
