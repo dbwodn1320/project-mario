@@ -24,7 +24,7 @@ for line in lines:
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
 DashState,IdleState,RunState,JumpState,FallingState,LandingState = range(6)
 
-map1 = [[0,3,3],[0,4,3],[0,5,3],[0,6,3],[0,7,3]] #(kind,x,y)
+map1 = [[0,3,5],[0,4,5],[0,5,5],[0,6,5],[0,7,5]] #(kind,x,y)
 map2 = [[0,0,0],[0,0,0]]
 
 blocks = None

@@ -122,5 +122,5 @@ class Green_turtle:
     def get_bb(self):
         if self.death == 0:
             return self.x - 30, self.y - 46, self.x + 30, self.y + 46
-        elif self.death < 0 or self.shell == 1:
+        elif self.death > 0 or self.shell == 1:
             return self.x - 30, self.y - 46, self.x + 30, self.y

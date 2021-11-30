@@ -10,12 +10,12 @@ class Ground:
         if Ground.image == None:
             Ground.image = load_image('ground_world1.png')
         self.size = 16
-        self.size_on_canvas = 80 # 블록 당 약 1.15m
+        self.size_on_canvas = 60 # 블록 당 약 1.15m
         self.map_data = list
         self.tile_num = len(self.map_data)
         self.x = self.size_on_canvas * n
         self.y = self.size_on_canvas / 2
-        self.top_y = self.y + 40 + 80 * (self.tile_num -1)
+        self.top_y = self.y + self.size_on_canvas/2 + self.size_on_canvas * (self.tile_num -1)
         self.num = n
 
     def update(self):
@@ -32,4 +32,4 @@ class Ground:
             draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 40, self.y - 40, self.x + 40, self.y + 40 + 80 * (self.tile_num -1)
+        return self.x - self.size_on_canvas/2, self.y - self.size_on_canvas/2, self.x + self.size_on_canvas/2, self.y + self.size_on_canvas/2 + self.size_on_canvas * (self.tile_num -1)

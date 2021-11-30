@@ -14,7 +14,7 @@ class Block:
         if Block.image == None:
             Block.image = load_image('block.png')
         self.size = 16
-        self.size_on_canvas = 80 # 블록 당 약 1.15m
+        self.size_on_canvas = 60 # 블록 당 약 1.15m
         self.x = self.size_on_canvas * server.map1[n][1]
         self.y = self.size_on_canvas / 2 + self.size_on_canvas * server.map1[n][2]
         self.frame = 0
@@ -36,4 +36,4 @@ class Block:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 40, self.y - 40, self.x + 40, self.y + 40
+        return self.x - self.size_on_canvas/2, self.y - self.size_on_canvas/2, self.x + self.size_on_canvas/2, self.y + self.size_on_canvas/2

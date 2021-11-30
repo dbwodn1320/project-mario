@@ -333,7 +333,7 @@ class Mario:
                 if self.x - 100 < block.x and block.x < self.x + 100:
                     if collision.collide_M(server.mario, block, 1):
                         self.add_event(Landing)
-                        self.y = block.y + 40 + 49.9
+                        self.y = block.y + 30 + 49.9
                         break
             for tile in server.ground_tiles:
                 if self.x - 100 < tile.x and tile.x < self.x + 100:
