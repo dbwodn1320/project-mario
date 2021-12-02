@@ -21,8 +21,8 @@ def enter():
     server.mario = Mario()
     server.ground_tiles = [Ground(n,server.map_data[n]) for n in range(len(server.map_data))]
     map_len = len(server.ground_tiles)
-    server.goombas = [Goomba(random.randint(10,map_len - 1)) for i in range(10)]
-    server.green_trutles = [Green_turtle(random.randint(10,map_len - 1)) for j in range(10)]
+    server.goombas = [Goomba(random.randint(10 + 20 * i,20 * (i + 1))) for i in range(10)]
+    server.green_trutles = [Green_turtle(random.randint(10 + 20 * i, 20 * (i + 1))) for i in range(10)]
     server.blocks = [ Block(j) for j in range(5)]
 
     game_world.add_object(server.mario, 1)
