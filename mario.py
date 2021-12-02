@@ -376,7 +376,7 @@ class Mario:
                     a += 1
             if a == len(server.ground_tiles) + len(server.blocks):
                 server.mario.add_event(DOWN)
-        print(self.jump_cnt)
+
         # 감속
         if self.dash_mult != 0 and self.cur_state == IdleState:
             if self.dash_mult > 0:

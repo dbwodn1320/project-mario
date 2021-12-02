@@ -6,7 +6,7 @@ import collision
 from math import *
 
 A = 10
-map1 = [[0,A,5],[1,A + 1,5],[1,A + 2,5],[0,A + 3,5],[1,A + 4,5]] #(kind,x,y) 0:부숴지는 블록 1:동전이 든 블록 2:물음표 블록 3:
+
 map2 = [[0,0,0],[0,0,0]]
 
 TIME_PER_ACTION = 0.35
@@ -15,20 +15,20 @@ FRAMES_PER_ACTION = 4
 
 class Block:
     image = None
-    def __init__(self,n):
+    def __init__(self,block_pos,n):
         if Block.image == None:
             Block.image = load_image('block.png')
         self.size = 16
         self.size_on_canvas = 60 # 블록 당 약 1.15m
-        self.x = self.size_on_canvas * map1[n][1]
-        self.y = self.size_on_canvas / 2 + self.size_on_canvas * map1[n][2]
-        self.kind = map1[n][0]
+        self.x = self.size_on_canvas * block_pos[1]
+        self.y = self.size_on_canvas / 2 + self.size_on_canvas * block_pos[2]
+        self.kind = block_pos[0]
         self.state = 0
         self.frame = 0
         self.png_y = 64
 
         self.spin = 0
-        self.state2_xy = [ [self.x, self.y] for i in range(4)]
+        self.state2_xy = [[self.x, self.y] for i in range(4)]
         self.state2_time = 0
 
         self.state1_size = 0
@@ -36,7 +36,6 @@ class Block:
         self.state1_done = 0
 
         self.coin_y = 0
-        self.n = n
 
     def update(self):
         self.frame = (self.frame + 4 * ACTION_PER_TIME * game_framework.frame_time) % 4

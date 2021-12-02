@@ -1,3 +1,5 @@
+from GenerateRandomObj import *
+
 f = open("map_date.txt", 'r')
 lines = f.readlines()
 f.close()
@@ -24,9 +26,17 @@ for line in lines:
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH, UP, DOWN, Landing = range(11)
 DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
-blocks = None
 mario = None
 ground_tiles = None
+
+map_len = len(map_data)
+
+blocks_center = 15
+blocks = None
+
+goombas_num = 10
 goombas = None
+
+turtle_num = 10
 green_trutles = None
 
