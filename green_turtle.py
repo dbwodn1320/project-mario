@@ -37,11 +37,11 @@ class Green_turtle:
         self.gravity_cnt = 0
         self.font = load_font('ENCR10B.TTF',16)
 
-    def update(self):
-        if 610 > server.mario.x and server.mario.x > 590:
-            self.x -= server.mario.velocity * server.mario.dash_mult * game_framework.frame_time
+        self.spin = 0
 
+    def update(self):
         if self.y < 0:
+            server.green_trutles.remove(self)
             game_world.remove_object(self)
 
         if self.active == 0:
@@ -51,38 +51,45 @@ class Green_turtle:
         elif self.active == 1:
             if self.death == 1:
                 self.action = 3
-                if self.shell != 1:
-                    if self.frame > 0:
-                        self.frame = 0
             elif self.dir == -1 and self.death == 0:
                 self.action = 1
             elif self.dir == 1 and self.death == 0:
                 self.action = 2
 
-            self.frame = (self.frame + (FRAMES_PER_ACTION[self.action] + self.shell * 10) * ACTION_PER_TIME * game_framework.frame_time) % \
+            if self.death == 0 or self.shell == 1:
+                self.frame = (self.frame + (FRAMES_PER_ACTION[self.action] + self.shell * 10) * ACTION_PER_TIME * game_framework.frame_time) % \
                          FRAMES_PER_ACTION[self.action]
 
-            if self.shell == 1:
-                self.x += self.dir * 5 * RUN_SPEED_PPS * game_framework.frame_time
-
-            if self.death == 0:
+            if self.death == 0: # 평소 상태
                 self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
-                if server.mario.cur_state_int == server.FallingState:
-                    if collision.collide_M(server.mario, self, 1):
-                        self.death = 1
-                        self.frame = 0
-                        server.mario.jump_cnt = server.mario.jump_cnt / 2
-                        server.mario.add_event(server.UP)
-                else:
-                    pass
+            elif self.shell == 1:
+                self.x += self.dir * 5 * RUN_SPEED_PPS * game_framework.frame_time
+                for turtle in server.green_trutles:
+                    if self != turtle:
+                        if collision.collide(self,turtle):
+                            if turtle.shell == 1 or turtle.death == 1:
+                                self.death = 2
+                            turtle.death = 2
 
-            elif self.death == 1 and self.shell == 0:
-                if collision.collide_M(server.mario, self, 1):
+            # 거북이와 몸이 충돌 했을 때
+            if collision.collide_M(server.mario, self, 0):
+                if self.death == 1 and self.shell == 0:
                     self.shell = 1
                     if server.mario.x > self.x:
                         self.dir = -1
                     else:
                         self.dir = 1
+
+            # 마리오가 거북이를 밟았을 때
+            if collision.collide_M(server.mario, self, 1) and server.mario.cur_state_int == server.FallingState:
+                if self.death != 2:
+                    if self.death == 0:
+                        self.death = 1
+                        self.frame = 0
+                    elif self.death == 1:
+                        self.death = 2
+                    server.mario.jump_cnt = 0.1
+                    server.mario.add_event(server.UP)
 
             for tile in server.ground_tiles:
                 if tile.top_y >= self.y:
@@ -92,21 +99,30 @@ class Green_turtle:
                                 self.dir = -1
                             elif self.dir == -1:
                                 self.dir = 1
-
                 if tile.x - 20 < self.x and self.x < tile.x + 20:
                     self.floor = tile.top_y
                     if self.floor == 0:
                         self.floor = -100
 
+            if self.death == 2:
+                self.y += 1000 * game_framework.frame_time
+
             self.y -= GRAVITY * self.gravity_cnt * game_framework.frame_time
             self.gravity_cnt += game_framework.frame_time
-            if self.y < self.floor + 45:
-                self.y = self.floor + 45
-                self.gravity_cnt = 0
+
+            if self.death < 2:
+                if self.y < self.floor + 45:
+                    self.y = self.floor + 45
+                    self.gravity_cnt = 0
 
     def draw(self):
         if -100 < self.x and self.x < 1300:
-            self.image.clip_draw(int(self.frame) * 20, 93 - 31 * self.action, 20, 31, self.x, self.y, 60, 93)
+            if self.death < 2 and self.shell < 2:
+                self.image.clip_draw(int(self.frame) * 20, 93 - 31 * self.action, 20, 31, self.x, self.y, 60, 93)
+            else:
+                self.spin += game_framework.frame_time
+                self.image.clip_composite_draw(0, 0, 20, 20, 3.141592 * 2 * self.spin, '', self.x, self.y, 60, 60)
+
             self.font.draw(self.x - 60, self.y + 50, '(DIR: %d , Action: %d)' % (self.dir,self.action) , (255, 255, 0))
             draw_rectangle(*self.get_bb())
 

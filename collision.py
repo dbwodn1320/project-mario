@@ -9,7 +9,9 @@ def collide(a, b):
     return True
 
 def collide_M(a, b, n):
-    if n == 1:
+    if n == 2:
+        left_a, bottom_a, right_a, top_a = a.get_bb_head()
+    elif n == 1:
         left_a, bottom_a, right_a, top_a = a.get_bb_foot()
     elif n == 0:
         left_a, bottom_a, right_a, top_a = a.get_bb_body()

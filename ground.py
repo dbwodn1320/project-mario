@@ -19,15 +19,13 @@ class Ground:
         self.num = n
 
     def update(self):
-        if 610 > server.mario.x and server.mario.x > 590:
-            self.x -= server.mario.velocity * server.mario.dash_mult * game_framework.frame_time
+        pass
 
     def draw(self):
         if -100 < self.x and self.x < 1300 :
             for j in range(0, len(self.map_data)):
                 self.image.clip_draw(self.size * (self.map_data[j] % 5), self.size - self.size * (self.map_data[j] // 5), self.size, self.size,
                                          self.x, self.size_on_canvas / 2 + self.size_on_canvas * j, self.size_on_canvas, self.size_on_canvas)
-
 
             draw_rectangle(*self.get_bb())
 

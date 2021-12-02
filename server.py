@@ -21,11 +21,8 @@ for line in lines:
         tmp.reverse()
         map_data.append(tmp)
 
-DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, SPACE, UP, DOWN, Landing = range(11)
-DashState,IdleState,RunState,JumpState,FallingState,LandingState = range(6)
-
-map1 = [[0,3,5],[0,4,5],[0,5,5],[0,6,5],[0,7,5]] #(kind,x,y)
-map2 = [[0,0,0],[0,0,0]]
+DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH, UP, DOWN, Landing = range(11)
+DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
 blocks = None
 mario = None
