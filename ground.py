@@ -22,7 +22,7 @@ class Ground:
         pass
 
     def draw(self):
-        if -100 < self.x and self.x < 1300 :
+        if -100 < self.x and self.x < 1000 :
             for j in range(0, len(self.map_data)):
                 self.image.clip_draw(self.size * (self.map_data[j] % 5), self.size - self.size * (self.map_data[j] // 5), self.size, self.size,
                                          self.x, self.size_on_canvas / 2 + self.size_on_canvas * j, self.size_on_canvas, self.size_on_canvas)
@@ -30,4 +30,7 @@ class Ground:
             draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - self.size_on_canvas/2, self.y - self.size_on_canvas/2, self.x + self.size_on_canvas/2, self.y + self.size_on_canvas/2 + self.size_on_canvas * (self.tile_num -1)
+        if self.tile_num > 0:
+            return self.x - self.size_on_canvas/2, self.y - self.size_on_canvas/2, self.x + self.size_on_canvas/2, self.y + self.size_on_canvas/2 + self.size_on_canvas * (self.tile_num -1)
+        else:
+            return self.x - self.size_on_canvas / 2, self.y - 10000, self.x + self.size_on_canvas / 2, self.y - 9999

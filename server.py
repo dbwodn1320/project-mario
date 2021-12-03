@@ -28,6 +28,7 @@ DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
 mario = None
 ground_tiles = None
+background = None
 
 map_len = len(map_data)
 

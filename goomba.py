@@ -35,6 +35,8 @@ class Goomba:
         self.active = 0
         self.floor = 0
 
+        self.falling = 0
+
         self.spin = 0
 
     def update(self):
@@ -78,25 +80,46 @@ class Goomba:
 
             for tile in server.ground_tiles:
                 if tile.top_y >= self.y:
-                    if self.x - 35 < tile.x and tile.x < self.x + 35:
+                    if self.x - 35 < tile.x < self.x + 35:
                         if collision.collide(tile, self):
                             if self.dir == 1:
                                 self.dir = -1
                             elif self.dir == -1:
                                 self.dir = 1
-                if tile.x - 30 < self.x and self.x < tile.x + 30:
-                    self.floor = tile.top_y
-                    if self.floor == 0:
-                        self.floor = -100
+                else:
+                    if collision.collide(tile, self) and not self.death == 2:
+                        self.falling = 0
+                        self.y = tile.top_y + 31
+                        self.gravity_cnt = 0
+
+            for block in server.blocks:
+                if collision.collide(block,self):
+                    if block.y + 30 > self.y:
+                        if self.dir == 1:
+                            self.dir = -1
+                        elif self.dir == -1:
+                            self.dir = 1
+                    elif not self.death == 2:
+                        self.falling = 0
+                        self.y = block.y + 31 + 30
+                        self.gravity_cnt = 0
+            t_cnt = 0
+            for tile in server.ground_tiles:
+                if not collision.collide(tile,self) and self.falling == 0:
+                    t_cnt += 1
+            for block in server.blocks:
+                if not collision.collide(block,self) and self.falling == 0:
+                    t_cnt += 1
+            if t_cnt == len(server.ground_tiles) + len(server.blocks):
+                self.falling = 1
+
             if self.death == 2:
                 self.y += 1000 * game_framework.frame_time
-            self.y -= GRAVITY * self.gravity_cnt * game_framework.frame_time
-            self.gravity_cnt += game_framework.frame_time
 
-            if self.death < 2:
-                if self.y < self.floor + 31:
-                    self.y = self.floor + 31
-                    self.gravity_cnt = 0
+            if self.falling == 1:
+                self.y -= GRAVITY * self.gravity_cnt * game_framework.frame_time
+                self.gravity_cnt += game_framework.frame_time
+
 
     def draw(self):
         if -100 < self.x and self.x < 1300 :

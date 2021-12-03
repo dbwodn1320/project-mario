@@ -3,11 +3,7 @@ import game_framework
 import game_world
 import server
 import collision
-from math import *
-
-A = 10
-
-map2 = [[0,0,0],[0,0,0]]
+from math import cos,sin
 
 TIME_PER_ACTION = 0.35
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -39,9 +35,6 @@ class Block:
 
     def update(self):
         self.frame = (self.frame + 4 * ACTION_PER_TIME * game_framework.frame_time) % 4
-
-        if 610 > server.mario.x and server.mario.x > 590:
-             self.x -= server.mario.velocity * server.mario.dash_mult * game_framework.frame_time
 
         if collision.collide_M(server.mario,self,2) and server.mario.cur_state_int == server.JumpState and self.state != 2:
             server.mario.jump_cnt = 3
