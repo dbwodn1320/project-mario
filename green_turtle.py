@@ -38,6 +38,7 @@ class Green_turtle:
 
         self.falling = 0
         self.spin = 0
+        self.shell1_cnt = 0
 
     def update(self):
         if self.y < 0:
@@ -63,6 +64,7 @@ class Green_turtle:
             if self.death == 0: # 평소 상태
                 self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
             elif self.shell == 1:
+                self.shell1_cnt += game_framework.frame_time
                 self.x += self.dir * 5 * RUN_SPEED_PPS * game_framework.frame_time
                 for turtle in server.green_trutles:
                     if self != turtle:

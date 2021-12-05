@@ -20,7 +20,7 @@ def SetBlockAttribute(num,map_data,num2 = 0):
     map_len = len(map_data)
     seg = map_len // num
 
-    Block_Attribute = [[random.randint(0,1),random.randint(10 + seg * i,seg * (i + 1)),0] for i in range(num)]
+    Block_Attribute = [[random.randint(0,3),random.randint(10 + seg * i,seg * (i + 1)),0] for i in range(num)]
     for block in Block_Attribute:
             block[2] = len(map_data[block[1]]) + random.randint(3, 4)
 
@@ -41,7 +41,7 @@ def SetBlockAttribute(num,map_data,num2 = 0):
             Block_Attribute.append(tmp)
 
     #print(Block_Attribute)
-    Block_Attribute = sorted(Block_Attribute)
+    Block_Attribute = sorted(Block_Attribute,key = lambda x: x[1])
     #print(Block_Attribute)
 
     for block in Block_Attribute.copy():
@@ -50,3 +50,5 @@ def SetBlockAttribute(num,map_data,num2 = 0):
 
     return Block_Attribute
 
+def SetCoinPos(blockpos, num):
+    pass

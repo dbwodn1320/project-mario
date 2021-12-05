@@ -32,6 +32,8 @@ background = None
 
 map_len = len(map_data)
 
+mushrooms = []
+
 blocks_center = 15
 blocks = None
 

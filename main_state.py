@@ -58,12 +58,31 @@ def handle_events():
             server.mario.handle_event(event)
 
 def update():
-    for game_object in game_world.all_objects():
-        game_object.update()
+    global time_cnt,a
+    if server.mario.timestop == 0:
+        for game_object in game_world.all_objects():
+            game_object.update()
+        time_cnt = 0
+        a = 0
+
+    elif server.mario.timestop == 1:
+        time_cnt += game_framework.frame_time
+        if time_cnt % 0.2 > 0.18:
+            a = 1 - a
+        server.mario.image.opacify(int(a))
+        server.mario.image_small.opacify(int(a))
+
+        if time_cnt > 0.7:
+            server.mario.timestop = 0
+            server.mario.image.opacify(1)
+            server.mario.image_small.opacify(1)
+            if server.mario.hp == 0:
+                server.mario.ghost = 1
 
     if server.mario.death == 1:
         game_world.clear()
         game_framework.change_state(title_state)
+
 
 def draw():
     clear_canvas()

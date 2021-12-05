@@ -4,6 +4,7 @@ import game_world
 import server
 import collision
 from math import cos,sin
+from item import Mushroom
 
 TIME_PER_ACTION = 0.35
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -21,7 +22,7 @@ class Block:
         self.kind = block_pos[0]
         self.state = 0
         self.frame = 0
-        self.png_y = 64
+        self.png_y = 96
 
         self.spin = 0
         self.state2_xy = [[self.x, self.y] for i in range(4)]
@@ -34,13 +35,20 @@ class Block:
         self.coin_y = 0
 
     def update(self):
-        self.frame = (self.frame + 4 * ACTION_PER_TIME * game_framework.frame_time) % 4
+        self.frame = (self.frame + 3 * ACTION_PER_TIME * game_framework.frame_time) % 4
 
         if collision.collide_M(server.mario,self,2) and server.mario.cur_state_int == server.JumpState and self.state != 2:
             server.mario.jump_cnt = 3
-            if self.kind == 1:
+            if self.kind == 0:
+                self.state = 1
+            elif self.kind == 1:
                 self.state = 2
-            elif self.kind == 0:
+            elif self.kind == 2:
+                self.state = 1
+            elif self.kind == 3:
+                if self.state == 0:
+                    server.mushrooms.append(Mushroom(self.x,self.y))
+                    game_world.add_object(server.mushrooms[len(server.mushrooms) - 1],0)
                 self.state = 1
 
         if self.state == 2:
@@ -75,24 +83,41 @@ class Block:
 
     def draw(self):
         if self.state == 0:
-            self.image.clip_draw(self.size * int(self.frame), self.png_y - self.size, self.size, self.size,
+            if self.kind == 0 or self.kind == 1:
+                self.image.clip_draw(self.size * int(self.frame), self.png_y - self.size, self.size, self.size,
                              self.x, self.y, self.size_on_canvas,
                              self.size_on_canvas)
+            if self.kind == 2 or self.kind == 3:
+                self.image.clip_draw(self.size * int(self.frame), self.png_y - 5 * self.size, self.size, self.size,
+                                     self.x, self.y, self.size_on_canvas,
+                                     self.size_on_canvas)
 
         elif self.state == 1:
-            if self.state1_done == 0:
+            if self.state1_done == 0 and self.kind != 3:
                 self.image.clip_draw(self.size * int(self.frame), self.png_y - 3 * self.size, self.size, self.size,
                                  self.x, self.y + self.coin_y, self.size_on_canvas,self.size_on_canvas) # 코인
 
-            self.image.clip_draw(0, self.png_y - self.size - self.size * self.state1_done, self.size, self.size,
+            if self.kind == 0:
+                self.image.clip_draw(0, self.png_y - self.size - self.size * self.state1_done, self.size, self.size,
                                  self.x, self.y, self.size_on_canvas + self.state1_size,
                                  self.size_on_canvas + self.state1_size)
+
+            elif self.kind == 2:
+                self.image.clip_draw(0, self.png_y - self.size * 5 + self.size * 3 * self.state1_done, self.size, self.size,
+                                     self.x, self.y, self.size_on_canvas + self.state1_size,
+                                     self.size_on_canvas + self.state1_size)
+
+            elif self.kind == 3:
+                self.image.clip_draw(0, self.png_y - self.size * 5 + self.size * 3 * self.state1_done, self.size, self.size,
+                                     self.x, self.y, self.size_on_canvas + self.state1_size,
+                                     self.size_on_canvas + self.state1_size)
 
         elif self.state == 2:
             self.spin += game_framework.frame_time
             for xy in self.state2_xy:
                 self.image.clip_composite_draw(0, self.png_y - 4 * self.size, self.size, self.size, 3.141592 * 2 * self.spin, '',
                                   xy[0], xy[1], 50, 50)
+
 
         draw_rectangle(*self.get_bb())
 
