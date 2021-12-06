@@ -7,8 +7,10 @@ import collision
 class Ground:
     image = None
     def __init__(self, n, list):
-        if Ground.image == None:
+        if Ground.image == None and server.map_kind == 1:
             Ground.image = load_image('ground_world1.png')
+        elif Ground.image == None and server.map_kind == 2:
+            Ground.image = load_image('ground_world2.png')
         self.size = 16
         self.size_on_canvas = 60 # 블록 당 약 1.15m
         self.map_data = list
@@ -23,10 +25,14 @@ class Ground:
 
     def draw(self):
         if -100 < self.x and self.x < 1000 :
-            for j in range(0, len(self.map_data)):
-                self.image.clip_draw(self.size * (self.map_data[j] % 5), self.size - self.size * (self.map_data[j] // 5), self.size, self.size,
-                                         self.x, self.size_on_canvas / 2 + self.size_on_canvas * j, self.size_on_canvas, self.size_on_canvas)
-
+            if server.map_kind == 1:
+                for j in range(len(self.map_data)):
+                    self.image.clip_draw(self.size * (self.map_data[j] % 5), self.size - self.size * (self.map_data[j] // 5), self.size, self.size,
+                                             self.x, self.size_on_canvas / 2 + self.size_on_canvas * j, self.size_on_canvas, self.size_on_canvas)
+            elif server.map_kind == 2:
+                for j in range(len(self.map_data)):
+                    self.image.clip_draw(self.size * (self.map_data[j] % 3), 48 - self.size * (self.map_data[j] // 3), self.size, self.size,
+                                             self.x, self.size_on_canvas / 2 + self.size_on_canvas * j, self.size_on_canvas, self.size_on_canvas)
             draw_rectangle(*self.get_bb())
 
     def get_bb(self):

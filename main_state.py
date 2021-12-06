@@ -13,6 +13,7 @@ from goomba import Goomba
 from green_turtle import Green_turtle
 from block import Block
 from background import Background
+from item import Coin
 import server
 from GenerateRandomObj import *
 
@@ -21,7 +22,7 @@ name = "MainState"
 def enter():
     goomba_pos = SetMonsterPos(server.goombas_num, server.map_len)
     turtle_pos = SetMonsterPos(server.turtle_num, server.map_len, goomba_pos)
-    blocks_attribute = SetBlockAttribute(server.blocks_center, server.map_data, server.blocks_center // 3)
+    blocks_attribute,coin_pos = SetBlockAttribute(server.blocks_center, server.map_data, server.blocks_center // 3)
 
     server.background = Background()
     server.mario = Mario()
@@ -29,13 +30,16 @@ def enter():
     server.goombas = [Goomba(goomba_pos[i]) for i in range(server.goombas_num)]
     server.green_trutles = [Green_turtle(turtle_pos[i]) for i in range(server.turtle_num)]
     server.blocks = [ Block(blocks_attribute[i],i) for i in range(len(blocks_attribute))]
+    server.coins = [Coin(coin_pos[i]) for i in range(len(coin_pos))]
 
     game_world.add_object(server.background,0)
     game_world.add_object(server.mario, 1)
     game_world.add_objects(server.goombas, 1)
     game_world.add_objects(server.green_trutles, 1)
     game_world.add_objects(server.blocks, 1)
+    game_world.add_objects(server.coins, 0)
     game_world.add_objects(server.ground_tiles, 1)
+
 
 def exit():
     game_world.clear()

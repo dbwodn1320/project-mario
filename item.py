@@ -111,25 +111,27 @@ class Mushroom:
 
 class Coin:
     image = None
-    def __init__(self, x,y):
+    def __init__(self, pos):
         if Coin.image == None:
             Coin.image = load_image('coin.png')
         self.size = 16
         self.size_on_canvas = 60  # 가로세로 약 0.9m
-        self.x = x
-        self.y = y
-        self.y_origin = y
-        self.dy = 0
-        self.dir = 0
+        self.x = self.size_on_canvas * pos[0]
+        self.y = self.size_on_canvas / 2 + self.size_on_canvas * pos[1]
         self.gravity_cnt = 0
-        self.floor = 0
-        self.falling = 0
-
-        self.active = 0
+        self.frame = 0
 
     def update(self):
-        pass
+        self.frame = (self.frame + 4 * ACTION_PER_TIME * game_framework.frame_time) % 4
+
+        if collision.collide(server.mario,self) and server.mario.cur_state_int != server.DeathState:
+            server.coins.remove(self)
+            game_world.remove_object(self)
+            server.mario.coin_num += 1
+
     def draw(self):
-        pass
+        if -100 < self.x and self.x < 1300:
+            self.image.clip_draw(self.size * int(self.frame), 0, 16, 16, self.x, self.y, 60, 60)
+
     def get_bb(self):
-        pass
+        return self.x - 30, self.y - 30, self.x + 30, self.y + 30

@@ -13,7 +13,9 @@ FRAMES_PER_ACTION = 4
 class Block:
     image = None
     def __init__(self,block_pos,n):
-        if Block.image == None:
+        if Block.image == None and server.map_kind == 2:
+            Block.image = load_image('block_lava.png')
+        elif Block.image == None and server.map_kind == 1:
             Block.image = load_image('block.png')
         self.size = 16
         self.size_on_canvas = 60 # 블록 당 약 1.15m
@@ -22,6 +24,7 @@ class Block:
         self.kind = block_pos[0]
         self.state = 0
         self.frame = 0
+        self.frame4 = 0
         self.png_y = 96
 
         self.spin = 0
@@ -35,7 +38,8 @@ class Block:
         self.coin_y = 0
 
     def update(self):
-        self.frame = (self.frame + 3 * ACTION_PER_TIME * game_framework.frame_time) % 4
+        self.frame = (self.frame + 3 * ACTION_PER_TIME * game_framework.frame_time) % 7
+        self.frame4 = (self.frame + 3 * ACTION_PER_TIME * game_framework.frame_time) % 4
 
         if collision.collide_M(server.mario,self,2) and server.mario.cur_state_int == server.JumpState and self.state != 2:
             server.mario.jump_cnt = 3
@@ -88,13 +92,13 @@ class Block:
                              self.x, self.y, self.size_on_canvas,
                              self.size_on_canvas)
             if self.kind == 2 or self.kind == 3:
-                self.image.clip_draw(self.size * int(self.frame), self.png_y - 5 * self.size, self.size, self.size,
+                self.image.clip_draw(self.size * int(self.frame4), self.png_y - 5 * self.size, self.size, self.size,
                                      self.x, self.y, self.size_on_canvas,
                                      self.size_on_canvas)
 
         elif self.state == 1:
             if self.state1_done == 0 and self.kind != 3:
-                self.image.clip_draw(self.size * int(self.frame), self.png_y - 3 * self.size, self.size, self.size,
+                self.image.clip_draw(self.size * int(self.frame4), self.png_y - 3 * self.size, self.size, self.size,
                                  self.x, self.y + self.coin_y, self.size_on_canvas,self.size_on_canvas) # 코인
 
             if self.kind == 0:

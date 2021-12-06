@@ -8,8 +8,8 @@ import server
 frame_time = 0.0
 
 PIXEL_PER_METER = (100.0 / 1.5)
-MARIO_JUMP = 30 * PIXEL_PER_METER
-GRAVITY = 80 * PIXEL_PER_METER
+MARIO_JUMP = 25 * PIXEL_PER_METER
+GRAVITY = 70 * PIXEL_PER_METER
 
 RUN_SPEED_KMPH = 20.0
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
@@ -57,6 +57,8 @@ class IdleState:
         elif event == DEBUG_KEY:
             mario.god = 1 - mario.god
 
+        mario.dir = clamp(-1,mario.dir,1)
+
     def exit(mario, event):
         pass
 
@@ -90,6 +92,8 @@ class RunState:
             mario.dir -= 1
         elif event == LEFT_UP:
             mario.dir += 1
+
+        mario.dir = clamp(-1,mario.dir,1)
 
     def exit(mario, event):
         pass
@@ -141,6 +145,8 @@ class DashState:
         elif event == LEFT_UP:
             mario.dir += 1
         mario.dash_timer = 0
+
+        mario.dir = clamp(-1,mario.dir,1)
 
     def exit(mario, event):
         mario.dash_timer = 0
@@ -203,6 +209,8 @@ class JumpState:
         elif event == LEFT_UP:
             mario.dir += 1
 
+        mario.dir = clamp(-1,mario.dir,1)
+
     def exit(mario, event):
         pass
 
@@ -212,9 +220,9 @@ class JumpState:
                 mario.action = 5
             else:
                 mario.action = 6
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
-        elif mario.hp == 0:
+            mario.frame = (mario.frame + 18 * ACTION_PER_TIME * game_framework.frame_time) % \
+                          FRAMES_PER_ACTION[mario.action]
+        elif mario.hp <= 0:
             mario.frame = (mario.frame + FRAMES_PER_ACTION_SMALL[3] * ACTION_PER_TIME * game_framework.frame_time) % \
                           FRAMES_PER_ACTION_SMALL[3]
 
@@ -256,6 +264,8 @@ class FallingState:
         elif event == LEFT_UP:
             mario.dir += 1
 
+        mario.dir = clamp(-1,mario.dir,1)
+
     def exit(mario, event):
         pass
 
@@ -265,14 +275,12 @@ class FallingState:
                 mario.action = 5
             else:
                 mario.action = 6
-            mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                          mario.action_frame[mario.action]
+            mario.frame = (mario.frame + 15 * ACTION_PER_TIME * game_framework.frame_time) % \
+                          FRAMES_PER_ACTION[mario.action]
+
         elif mario.hp < 0:
             mario.frame = (mario.frame + FRAMES_PER_ACTION_SMALL[3] * ACTION_PER_TIME * game_framework.frame_time) % \
                           FRAMES_PER_ACTION_SMALL[3]
-
-        mario.frame = (mario.frame + FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time) % \
-                      mario.action_frame[mario.action]
 
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
         mario.dash_mult += mario.dir * 4.0 * game_framework.frame_time
@@ -370,6 +378,9 @@ class Mario:
         self.death = 0
         self.ghost = 0
         self.ghost_cnt = 0
+
+        self.coin_num = 0
+        self.first_cmd = 0
     def add_event(self, event):
         self.event_que.insert(0, event)
 
@@ -417,15 +428,29 @@ class Mario:
             for i in range(len(server.background.x1)):
                 server.background.x1[i] -= 0.25 *self.velocity * self.dash_mult * game_framework.frame_time
                 if server.background.x1[i] < -1350:
-                    server.background.x1[i] = 1350
+                    for j in range(len(server.background.x1)):
+                        if 430 < server.background.x1[j] < 450:
+                            server.background.x1[i] = server.background.x1[j] + 900
+                            break
                 elif server.background.x1[i] > 2150:
-                    server.background.x1[i] = -450
+                    for j in range(len(server.background.x1)):
+                        if 430 < server.background.x1[j] < 450:
+                            server.background.x1[i] = server.background.x1[j] - 900
+                            break
             for i in range(len(server.background.x2)):
                 server.background.x2[i] -= 0.5 * self.velocity * self.dash_mult * game_framework.frame_time
                 if server.background.x2[i] < -1350:
-                    server.background.x2[i] = 1350
+                    for j in range(len(server.background.x2)):
+                        if 430 < server.background.x2[j] < 450:
+                            server.background.x2[i] = server.background.x2[j] + 900
+                            break
                 elif server.background.x2[i] > 2150:
-                    server.background.x2[i] = -450
+                    for j in range(len(server.background.x2)):
+                        if 430 < server.background.x2[j] < 450:
+                            server.background.x2[i] = server.background.x2[j] - 900
+                            break
+            for coin in server.coins:
+                coin.x -= self.velocity * self.dash_mult * game_framework.frame_time
             for block in server.blocks:
                 block.x -= self.velocity * self.dash_mult * game_framework.frame_time
             for tile in server.ground_tiles:
@@ -441,6 +466,8 @@ class Mario:
                 if collision.collide(server.mario, tile):
                     for tile1 in server.ground_tiles:
                         tile1.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    for coin in server.coins:
+                        coin.x += self.velocity * self.dash_mult * game_framework.frame_time
                     for turtle in server.green_trutles:
                         turtle.x += self.velocity * self.dash_mult * game_framework.frame_time
                     for goomba in server.goombas:
@@ -458,6 +485,8 @@ class Mario:
                 if collision.collide(server.mario, block):
                     for tile in server.ground_tiles:
                         tile.x += self.velocity * self.dash_mult * game_framework.frame_time
+                    for coin in server.coins:
+                        coin.x += self.velocity * self.dash_mult * game_framework.frame_time
                     for turtle in server.green_trutles:
                         turtle.x += self.velocity * self.dash_mult * game_framework.frame_time
                     for goomba in server.goombas:
@@ -551,6 +580,8 @@ class Mario:
                     self.dash_mult -= 9.0 * game_framework.frame_time
                 elif self.dash_mult < 0:
                     self.dash_mult += 9.0 * game_framework.frame_time
+        if -0.05 < self.dash_mult < -0.05:
+            self.dash_mult = 0
 
     def draw(self):
         self.cur_state.draw(self)
@@ -562,11 +593,13 @@ class Mario:
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
-            if self.cur_state_int == server.FallingState and event.key == SDLK_UP:
-                pass
-            else:
-                key_event = key_event_table[(event.type, event.key)]
-                self.add_event(key_event)
+            if not self.cur_state_int == server.FallingState or not event.key == SDLK_UP:
+                if not(self.first_cmd == 0 and event.type == SDL_KEYUP and (event.key == SDLK_LEFT or event.key == SDLK_RIGHT)):
+                    key_event = key_event_table[(event.type, event.key)]
+                    self.add_event(key_event)
+
+            print(self.dir)
+            self.first_cmd += 1
 
     def get_bb(self):
         if self.hp == 1:
