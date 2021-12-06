@@ -13,9 +13,9 @@ FRAMES_PER_ACTION = 4
 class Block:
     image = None
     def __init__(self,block_pos,n):
-        if Block.image == None and server.map_kind == 2:
+        if Block.image == None or server.map_kind == 2:
             Block.image = load_image('block_lava.png')
-        elif Block.image == None and server.map_kind == 1:
+        elif Block.image == None or server.map_kind == 1:
             Block.image = load_image('block.png')
         self.size = 16
         self.size_on_canvas = 60 # 블록 당 약 1.15m

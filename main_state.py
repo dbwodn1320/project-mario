@@ -5,7 +5,7 @@ import os
 from pico2d import *
 import game_framework
 import game_world
-import title_state
+import seletion_state
 
 from mario import Mario
 from ground import Ground
@@ -57,7 +57,7 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_world.clear()
-            game_framework.change_state(title_state)
+            game_framework.change_state(seletion_state)
         else:
             server.mario.handle_event(event)
 
@@ -85,7 +85,7 @@ def update():
 
     if server.mario.death == 1:
         game_world.clear()
-        game_framework.change_state(title_state)
+        game_framework.change_state(seletion_state)
 
 
 def draw():

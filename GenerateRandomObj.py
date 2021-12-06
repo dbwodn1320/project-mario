@@ -21,8 +21,11 @@ def SetBlockAttribute(num,map_data,num2 = 0):
     seg = map_len // num
 
     Block_Attribute = [[random.randint(0,3),random.randint(10 + seg * i,seg * (i + 1)),0] for i in range(num)]
-    for block in Block_Attribute:
-            block[2] = len(map_data[block[1]]) + 4 #random.randint(4, 5)
+    for block in Block_Attribute.copy():
+            if len(map_data[block[1]]) == 0:
+                Block_Attribute.remove(block)
+            else:
+                block[2] = len(map_data[block[1]]) + 4  # random.randint(4, 5)
 
     tmp3 = [i for i in range(0, len(Block_Attribute) - 1)]
     tmp2 = []
@@ -81,6 +84,10 @@ def SetBlockAttribute(num,map_data,num2 = 0):
     #print(Block_Attribute)
     Block_Attribute = sorted(Block_Attribute,key = lambda x: x[1])
     #print(Block_Attribute)
+
+    for block in Block_Attribute.copy():
+        if block[1] > len(map_data) - 1:
+            Block_Attribute.remove(block)
 
     for block in Block_Attribute.copy():
         if -2 < len(map_data[block[1]]) - block[2] < 2:

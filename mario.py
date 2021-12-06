@@ -381,6 +381,8 @@ class Mario:
 
         self.coin_num = 0
         self.first_cmd = 0
+        if server.map_kind == 2:
+            self.y += 60
     def add_event(self, event):
         self.event_que.insert(0, event)
 
