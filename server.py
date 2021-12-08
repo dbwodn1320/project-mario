@@ -1,4 +1,5 @@
 from GenerateRandomObj import *
+import json
 
 map_kind = 1
 map_data = []
@@ -55,6 +56,7 @@ def ReadMapTxt(map_kind):
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH, UP, DOWN, Landing = range(11)
 DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
+time_ranking = None
 
 powerup = None
 coin_sound = None

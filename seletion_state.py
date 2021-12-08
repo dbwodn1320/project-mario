@@ -4,6 +4,7 @@ import gamestart_state
 import store_state
 import title_state
 import server
+import leaderboard_state
 
 name = "SelectionState"
 image1 = None
@@ -36,6 +37,10 @@ def enter():
     bg = load_image('bg_selection.png')
     shop = load_image('mush.png')
 
+    with open('ranking.json', 'r') as f:
+        server.time_ranking = json.load(f)
+
+    print(server.time_ranking)
     bgm = load_music("bgm_title.mp3")
     bgm.set_volume(32)
     bgm.repeat_play()
@@ -104,6 +109,8 @@ def handle_events():
                 if sero_index > 1:
                     sero_index = 0
                 selected[sero_index][garo_index] = 1
+            elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_r):
+                game_framework.change_state(leaderboard_state)
 def draw():
     clear_canvas()
     bg.clip_draw(0, 0, 526, 526, 450, 450, 900,900)

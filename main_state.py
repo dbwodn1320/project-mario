@@ -90,9 +90,17 @@ def update():
                 server.mario.ghost = 1
     elif server.mario.timestop == 2:
         if time_cnt == 0:
+            server.time_ranking[server.map_kind - 1].append(int(server.background.time))
+            server.time_ranking[server.map_kind - 1].sort()
+            with open('ranking.json', 'w') as f:
+                f.write(json.dumps(server.time_ranking))
+
+            print(server.time_ranking[seletion_state.level_index])
             clear_sound = load_wav("sbm_mapcomplete.wav")
             clear_sound.set_volume(32)
+            server.background.bgm.stop()
             clear_sound.play()
+
         time_cnt += game_framework.frame_time
         if time_cnt > 4.0:
             game_framework.change_state(seletion_state)
