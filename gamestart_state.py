@@ -2,6 +2,7 @@ import game_framework
 from pico2d import *
 import main_state
 import server
+import seletion_state
 
 name = "GamestartState"
 image = None
@@ -28,12 +29,10 @@ def handle_events():
     for event in events:
         if event.type == SDL_QUIT:
             game_framework.quit()
-        # else:
-        #     if (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-        #         game_framework.quit()
-        #     elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
-        #         game_framework.change_state(seletion_state)
-
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
+            game_framework.change_state(seletion_state)
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
+            game_framework.change_state(main_state)
 def draw():
     clear_canvas()
     image.clip_draw(0,0,100,100,450,450,900,900)
@@ -41,9 +40,9 @@ def draw():
                          ,370,450,70,70)
     font.draw(470,450,"X %d"% server.life,(255,255,255))
     if server.map_kind == 1:
-        font.draw(350,550,"GRASSLAND",(255,255,255))
+        font.draw(320,550,"GRASSLAND",(255,255,255))
     else:
-        font.draw(300, 550, "KOOPA CASTLE", (255,255,255))
+        font.draw(280, 550, "KOOPA CASTLE", (255,255,255))
     update_canvas()
 
 

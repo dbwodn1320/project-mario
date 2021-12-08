@@ -14,10 +14,16 @@ class Background:
         self.y = 450
         if server.map_kind == 1:
             self.image = load_image('bg_grassland.png')
+            self.bgm = load_wav('bgm_Castle.wav')
+            self.bgm.set_volume(32)
+            self.bgm.repeat_play()
             Background.back = randint(0,3)
             Background.front = randint(1,4)
         elif server.map_kind == 2:
             self.image = load_image('bg_castle.png')
+            self.bgm = load_wav('bgm_Castle.wav')
+            self.bgm.set_volume(32)
+            self.bgm.repeat_play()
             Background.back = 0
             Background.front = 3
         self.font = load_font('SuperMario256.ttf',50)

@@ -69,24 +69,30 @@ def update():
             game_object.update()
         time_cnt = 0
         a = 0
-
     elif server.mario.timestop == 1:
         time_cnt += game_framework.frame_time
         if time_cnt % 0.2 > 0.18:
             a = 1 - a
         server.mario.image.opacify(int(a))
         server.mario.image_small.opacify(int(a))
-
         if time_cnt > 0.7:
             server.mario.timestop = 0
             server.mario.image.opacify(1)
             server.mario.image_small.opacify(1)
             if server.mario.hp == 0:
                 server.mario.ghost = 1
+    elif server.mario.timestop == 2:
+        server.mario.font.draw(80, 450, "Mario Clear!", (255, 0, 0))
+        time_cnt += game_framework.frame_time
+        if time_cnt > 5.0:
+            game_framework.change_state(seletion_state)
 
     if server.mario.death == 1:
         game_world.clear()
-        game_framework.change_state(seletion_state)
+        if server.life < 0:
+            game_framework.change_state(gameover_state)
+        else:
+            game_framework.change_state(seletion_state)
 
 
 def draw():

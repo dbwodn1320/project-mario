@@ -4,6 +4,7 @@ import game_world
 import time
 import collision
 import server
+import seletion_state
 
 frame_time = 0.0
 
@@ -356,7 +357,7 @@ class Mario:
         # mario is only once created, so instance image loading is fine
         self.image = load_image('mario.png')
         self.image_small = load_image('mario_small.png')
-        self.font = load_font('SuperMario256.ttf',50)
+        self.font = load_font('SuperMario256.ttf',100)
         self.dir = 0
         self.velocity = RUN_SPEED_PPS
         self.frame = 0
@@ -394,8 +395,8 @@ class Mario:
             event = self.event_que.pop()
             self.cur_state.exit(self, event)
             try:
-                print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
-                print(MARIO_JUMP - self.jump_cnt * GRAVITY)
+                #print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
+                #print(MARIO_JUMP - self.jump_cnt * GRAVITY)
                 if self.cur_state == DeathState:
                     self.cur_state = DeathState
                 elif self.cur_state == FallingState and event == Landing:
@@ -434,6 +435,7 @@ class Mario:
 
         self.x = clamp(0,self.x,900)
         # 스크롤링 및 충돌체크
+
         if 450 + 20 > self.x > 450 - 20 and not server.ground_tiles[0].x < self.x < server.ground_tiles[0 + 7].x \
                 and not server.ground_tiles[server.map_len - 8].x < self.x < server.ground_tiles[server.map_len - 1].x:
             self.x = 450
@@ -610,6 +612,9 @@ class Mario:
 
     def draw(self):
         self.cur_state.draw(self)
+        if server.ground_tiles[server.map_len - 8].x < self.x < server.ground_tiles[server.map_len - 1].x + 100:
+            self.timestop = 2
+
         #self.font.draw(self.x - 60, self.y + 80, '(HP: %d)' % self.hp,(255,255,255))
         #draw_rectangle(*self.get_bb_body())
         #draw_rectangle(*self.get_bb_foot())
@@ -618,7 +623,7 @@ class Mario:
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
-            if not self.cur_state == FallingState or not event.key == SDLK_UP:
+            if not self.cur_state == FallingState or not event.key == SDLK_UP or 1  :
                 if not(self.first_cmd == 0 and event.type == SDL_KEYUP and (event.key == SDLK_LEFT or event.key == SDLK_RIGHT)):
                     key_event = key_event_table[(event.type, event.key)]
                     self.add_event(key_event)
@@ -640,8 +645,7 @@ class Mario:
         if self.hp == 1:
             return self.x - 20, self.y - 30, self.x + 20, self.y + 30
         elif self.hp <= 0:
-            #return self.x - 15, self.y - 20, self.x + 15, self.y + 20
-            return self.x - 15, self.y + 9999, self.x + 15, self.y + 99999
+            return self.x - 15, self.y - 20, self.x + 15, self.y + 20
     def get_bb_foot(self):
         if self.hp == 1:
             return self.x - 27, self.y - 50, self.x + 27, self.y - 30

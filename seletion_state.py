@@ -36,6 +36,8 @@ def enter():
 
 def exit():
     global image1,image2,arrow,bg,shop,font,font_level
+    #global garo_index,sero_index,level_index
+
     del(image1)
     del(image2)
     del(arrow)
@@ -66,10 +68,10 @@ def handle_events():
                     game_framework.change_state(store_state)
                 elif sero_index == 1 and garo_index == 1:
                     level_index += 1
-                    if 5 - level_index * 2 < server.life:
-                        server.life = 5 - level_index * 2
+                    server.coin = 0
                     if level_index > 2:
                         level_index = 0
+                    server.life = 5 - level_index * 2
             elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):
                 selected[sero_index][garo_index] = 0
                 garo_index -= 1
