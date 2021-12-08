@@ -23,7 +23,7 @@ name = "MainState"
 def enter():
     goomba_pos = SetMonsterPos(server.goombas_num*(seletion_state.level_index + 1), server.map_len)
     turtle_pos = SetMonsterPos(server.turtle_num*(seletion_state.level_index + 1), server.map_len, goomba_pos)
-    print(len(goomba_pos),len(turtle_pos))
+    #print(len(goomba_pos),len(turtle_pos))
     blocks_attribute,coin_pos = SetBlockAttribute(server.blocks_center, server.map_data, server.blocks_center // 3)
 
     server.background = Background()
@@ -44,6 +44,7 @@ def enter():
 
 def exit():
     game_world.clear()
+    server.background.bgm.stop()
 
 def pause():
     pass

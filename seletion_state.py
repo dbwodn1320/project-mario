@@ -24,8 +24,10 @@ level = {0: 'EASY',1: 'NORMAL', 2: 'HARD'}
 level_color = [(0,180,180),(180,180,180),(255,100,100)]
 level_index = 0
 
+bgm = None
+
 def enter():
-    global image1,image2,arrow,bg,font,shop,font_level
+    global image1,image2,arrow,bg,font,shop,font_level,bgm
     font = load_font('SuperMario256.ttf',60)
     font_level = load_font('SuperMario256.ttf',100)
     image1 = load_image('map1.png')
@@ -34,10 +36,13 @@ def enter():
     bg = load_image('bg_selection.png')
     shop = load_image('mush.png')
 
-def exit():
-    global image1,image2,arrow,bg,shop,font,font_level
-    #global garo_index,sero_index,level_index
+    bgm = load_music("bgm_title.mp3")
+    bgm.set_volume(32)
+    bgm.repeat_play()
 
+def exit():
+    global image1,image2,arrow,bg,shop,font,font_level#,bgm
+    #global garo_index,sero_index,level_index
     del(image1)
     del(image2)
     del(arrow)
@@ -45,9 +50,10 @@ def exit():
     del(bg)
     del(font)
     del(font_level)
+    #del(bgm)
 
 def handle_events():
-    global seleted,garo_index,sero_index,level_index
+    global seleted,garo_index,sero_index,level_index,bgm
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -59,10 +65,12 @@ def handle_events():
                 if sero_index == 0 and garo_index == 0:
                     server.map_kind = 1
                     server.map_data,server.map_len = server.ReadMapTxt(server.map_kind)
+                    del(bgm)
                     game_framework.change_state(gamestart_state)
                 elif sero_index == 0 and garo_index == 1:
                     server.map_kind = 2
                     server.map_data, server.map_len = server.ReadMapTxt(server.map_kind)
+                    del(bgm)
                     game_framework.change_state(gamestart_state)
                 elif sero_index == 1 and garo_index == 0:
                     game_framework.change_state(store_state)
