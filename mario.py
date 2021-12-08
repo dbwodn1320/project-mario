@@ -194,6 +194,7 @@ class DashState:
 
 class JumpState:
     def enter(mario, event):
+        mario.jump_sound.play()
         mario.frame = 0
         mario.cur_state_int = 3
         if event == RIGHT_DOWN:
@@ -306,7 +307,6 @@ class DeathState:
         mario.cur_state_int = 5
         server.mario.image.opacify(1)
         server.mario.image_small.opacify(1)
-
     def exit(mario, event):
         pass
 
@@ -385,6 +385,12 @@ class Mario:
 
         if server.map_kind == 2:
             self.y += 60
+
+        self.jump_sound = load_wav("smb_jump-small.wav")
+        self.jump_sound.set_volume(10)
+
+        self.death_sound = load_wav("smb_mariodie.wav")
+        self.death_sound.set_volume(32)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -612,7 +618,8 @@ class Mario:
 
     def draw(self):
         self.cur_state.draw(self)
-        if server.ground_tiles[server.map_len - 8].x < self.x < server.ground_tiles[server.map_len - 1].x + 100:
+        if server.ground_tiles[server.map_len - 3].x < self.x < server.ground_tiles[server.map_len - 1].x + 100:
+            self.font.draw(80, 450, "Mario Clear!", (255, 0, 0))
             self.timestop = 2
 
         #self.font.draw(self.x - 60, self.y + 80, '(HP: %d)' % self.hp,(255,255,255))
@@ -623,7 +630,7 @@ class Mario:
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
-            if not self.cur_state == FallingState or not event.key == SDLK_UP or 1  :
+            if not self.cur_state == FallingState or not event.key == SDLK_UP or 1:
                 if not(self.first_cmd == 0 and event.type == SDL_KEYUP and (event.key == SDLK_LEFT or event.key == SDLK_RIGHT)):
                     key_event = key_event_table[(event.type, event.key)]
                     self.add_event(key_event)

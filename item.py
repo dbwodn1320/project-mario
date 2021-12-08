@@ -32,7 +32,6 @@ class Mushroom:
         self.gravity_cnt = 0
         self.floor = 0
         self.falling = 0
-
         self.active = 0
 
     def update(self):
@@ -55,6 +54,7 @@ class Mushroom:
                 server.mushrooms.remove(self)
                 game_world.remove_object(self)
                 if server.mario.hp == 0:
+                    server.powerup.play()
                     server.mario.timestop = 1
                     server.mario.hp += 1
                     server.mario.y += 10
@@ -121,6 +121,7 @@ class Coin:
         self.gravity_cnt = 0
         self.frame = 0
 
+
     def update(self):
         self.frame = (self.frame + 4 * ACTION_PER_TIME * game_framework.frame_time) % 4
 
@@ -128,7 +129,8 @@ class Coin:
             server.coins.remove(self)
             game_world.remove_object(self)
             server.coin += 1
-            print(server.coin)
+            server.coin_sound.play()
+
     def draw(self):
         if -100 < self.x and self.x < 1300:
             self.image.clip_draw(self.size * int(self.frame), 0, 16, 16, self.x, self.y, 60, 60)

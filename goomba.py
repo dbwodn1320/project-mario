@@ -39,6 +39,12 @@ class Goomba:
 
         self.spin = 0
 
+        self.kick_sound = load_wav("smb_kick.wav")
+        self.kick_sound.set_volume(32)
+
+        self.stomp_sound = load_wav("smb_stomp.wav")
+        self.stomp_sound.set_volume(32)
+
     def update(self):
         if self.y < 0:
             game_world.remove_object(self)
@@ -68,11 +74,13 @@ class Goomba:
                         self.frame = 0
                         server.mario.jump_cnt = 0.1
                         server.mario.add_event(server.UP)
+                        self.stomp_sound.play()
 
                 for turtle in server.green_trutles:
                     if turtle.shell == 1:
                         if collision.collide_M(turtle, self, 1):
                             self.death = 2
+                            self.kick_sound.play()
 
             if self.death_cnt > 1.0:
                 server.goombas.remove(self)

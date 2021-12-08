@@ -21,6 +21,12 @@ from GenerateRandomObj import *
 name = "MainState"
 
 def enter():
+    server.powerup = load_wav('smb_powerup.wav')
+    server.powerup.set_volume(32)
+
+    server.coin_sound = load_wav('smb_coin.wav')
+    server.coin_sound.set_volume(32)
+
     goomba_pos = SetMonsterPos(server.goombas_num*(seletion_state.level_index + 1), server.map_len)
     turtle_pos = SetMonsterPos(server.turtle_num*(seletion_state.level_index + 1), server.map_len, goomba_pos)
     #print(len(goomba_pos),len(turtle_pos))
@@ -64,7 +70,7 @@ def handle_events():
             server.mario.handle_event(event)
 
 def update():
-    global time_cnt,a
+    global time_cnt,a,clear_sound
     if server.mario.timestop == 0:
         for game_object in game_world.all_objects():
             game_object.update()
@@ -83,12 +89,16 @@ def update():
             if server.mario.hp == 0:
                 server.mario.ghost = 1
     elif server.mario.timestop == 2:
-        server.mario.font.draw(80, 450, "Mario Clear!", (255, 0, 0))
+        if time_cnt == 0:
+            clear_sound = load_wav("sbm_mapcomplete.wav")
+            clear_sound.set_volume(32)
+            clear_sound.play()
         time_cnt += game_framework.frame_time
-        if time_cnt > 5.0:
+        if time_cnt > 4.0:
             game_framework.change_state(seletion_state)
 
     if server.mario.death == 1:
+        server.mario.death_sound.play()
         game_world.clear()
         if server.life < 0:
             game_framework.change_state(gameover_state)

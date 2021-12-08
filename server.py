@@ -55,6 +55,10 @@ def ReadMapTxt(map_kind):
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH, UP, DOWN, Landing = range(11)
 DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
+
+powerup = None
+coin_sound = None
+
 mario = None
 coin = 9999
 score = 0

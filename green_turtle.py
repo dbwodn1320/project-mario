@@ -40,6 +40,12 @@ class Green_turtle:
         self.spin = 0
         self.shell1_cnt = 0
 
+        self.kick_sound = load_wav("smb_kick.wav")
+        self.kick_sound.set_volume(32)
+
+        self.stomp_sound = load_wav("smb_stomp.wav")
+        self.stomp_sound.set_volume(32)
+
     def update(self):
         if self.y < 0:
             server.green_trutles.remove(self)
@@ -72,8 +78,9 @@ class Green_turtle:
                             if turtle.shell == 1 or turtle.death == 1:
                                 self.death = 2
                             turtle.death = 2
+                            self.kick_sound.play()
 
-            # 거북이와 몸이 충돌 했을 때
+            # 거북이 딱지와 몸이 충돌 했을 때
             if collision.collide_M(server.mario, self, 0):
                 if self.death == 1 and self.shell == 0:
                     self.shell = 1
@@ -85,6 +92,7 @@ class Green_turtle:
             # 마리오가 거북이를 밟았을 때
             if collision.collide_M(server.mario, self, 1) and server.mario.cur_state_int == server.FallingState:
                 if self.death != 2:
+                    self.stomp_sound.play()
                     if self.death == 0:
                         self.death = 1
                         self.frame = 0

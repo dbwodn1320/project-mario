@@ -37,6 +37,18 @@ class Block:
 
         self.coin_y = 0
 
+        self.bump = load_wav('smb_bump.wav')
+        self.bump.set_volume(32)
+
+        self.breakblock = load_wav('smb_breakblock.wav')
+        self.breakblock.set_volume(24)
+
+        self.powerup = load_wav('smb_powerup_appears.wav')
+        self.powerup.set_volume(32)
+
+        self.coin_sound = load_wav('smb_coin.wav')
+        self.coin_sound.set_volume(32)
+
     def update(self):
         self.frame = (self.frame + 3 * ACTION_PER_TIME * game_framework.frame_time) % 7
         self.frame4 = (self.frame + 3 * ACTION_PER_TIME * game_framework.frame_time) % 4
@@ -46,17 +58,27 @@ class Block:
             if self.kind == 0:
                 if self.state == 0:
                     server.coin += 1
+                    self.coin_sound.play()
+                else:
+                    self.bump.play()
                 self.state = 1
             elif self.kind == 1:
+                self.breakblock.play()
                 self.state = 2
             elif self.kind == 2:
                 if self.state == 0:
                     server.coin += 1
+                    self.coin_sound.play()
+                else:
+                    self.bump.play()
                 self.state = 1
             elif self.kind == 3:
                 if self.state == 0:
                     server.mushrooms.append(Mushroom(self.x,self.y))
                     game_world.add_object(server.mushrooms[len(server.mushrooms) - 1],0)
+                    self.powerup.play()
+                else:
+                    self.bump.play()
                 self.state = 1
 
         if self.state == 2:
