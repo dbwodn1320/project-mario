@@ -320,6 +320,7 @@ class DeathState:
         mario.jump_cnt += game_framework.frame_time
         if mario.y < -50:
             mario.death = 1
+            server.life -= 1
 
     def draw(mario):
         if mario.hp == 1:
@@ -370,6 +371,10 @@ class Mario:
 
         self.timestop = 0
         self.hp = 0
+        if server.power == 1:
+            self.hp += 1
+            server.power -= 1
+
         self.death = 0
         self.ghost = 0
         self.ghost_cnt = 0

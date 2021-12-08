@@ -34,7 +34,7 @@ class Green_turtle:
         self.death_cnt = 0
         self.active = 0
         self.gravity_cnt = 0
-        self.font = load_font('ENCR10B.TTF',16)
+        #self.font = load_font('ENCR10B.TTF',16)
 
         self.falling = 0
         self.spin = 0

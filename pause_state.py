@@ -13,9 +13,8 @@ def enter():
     image = load_image('kpu_credit.png')
 
 def exit():
-    global image,timer
+    global image
     del(image)
-    timer = 0
 
 def handle_events():
     events = get_events()
@@ -37,7 +36,7 @@ def draw():
 def update():
     global timer
     timer += game_framework.frame_time
-    if timer > 1.0:
+    if timer > 2.0:
         game_framework.change_state(title_state)
 
 def pause():

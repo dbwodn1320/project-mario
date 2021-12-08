@@ -8,7 +8,7 @@ def SetMonsterPos(num,map_len ,another = None):
     else:
         for i in range(len(mon_pos)):
             if mon_pos[i] == another[i]:
-                print(mon_pos[i], another[i])
+                #print(mon_pos[i], another[i])
                 while 1:
                     mon_pos[i] = random.randint(10 + seg * i,seg * (i+1))
                     #print(mon_pos[i],another[i])

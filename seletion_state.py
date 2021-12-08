@@ -1,6 +1,7 @@
 import game_framework
 from pico2d import *
-import main_state
+import gamestart_state
+import store_state
 import title_state
 import server
 
@@ -56,15 +57,17 @@ def handle_events():
                 if sero_index == 0 and garo_index == 0:
                     server.map_kind = 1
                     server.map_data,server.map_len = server.ReadMapTxt(server.map_kind)
-                    game_framework.change_state(main_state)
+                    game_framework.change_state(gamestart_state)
                 elif sero_index == 0 and garo_index == 1:
                     server.map_kind = 2
                     server.map_data, server.map_len = server.ReadMapTxt(server.map_kind)
-                    game_framework.change_state(main_state)
+                    game_framework.change_state(gamestart_state)
                 elif sero_index == 1 and garo_index == 0:
-                    pass
+                    game_framework.change_state(store_state)
                 elif sero_index == 1 and garo_index == 1:
                     level_index += 1
+                    if 5 - level_index * 2 < server.life:
+                        server.life = 5 - level_index * 2
                     if level_index > 2:
                         level_index = 0
             elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):
@@ -102,7 +105,7 @@ def draw():
     font.draw(675-120, 600 - 220, 'CASTLE', (0, 0, 0))
 
     shop.clip_draw(0,0,38, 38,225,200,200 + selected[1][0] * 50,200 + selected[1][0] * 50)
-    font.draw(225-90, 200 - 150, 'SHOP', (0, 0, 0))
+    font.draw(225-90, 200 - 160, 'SHOP', (0, 0, 0))
 
     font_level.draw(625 - 70 - 110 * (level_index % 2), 200 - 50, level[level_index], level_color[level_index])
 

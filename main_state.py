@@ -6,6 +6,7 @@ from pico2d import *
 import game_framework
 import game_world
 import seletion_state
+import gameover_state
 
 from mario import Mario
 from ground import Ground

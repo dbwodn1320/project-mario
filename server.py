@@ -56,9 +56,10 @@ DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH,
 DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
 mario = None
-coin = 0
+coin = 9999
 score = 0
 life = 5
+power = 0
 
 ground_tiles = None
 background = None

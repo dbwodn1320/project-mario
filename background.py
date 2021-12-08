@@ -36,8 +36,8 @@ class Background:
         self.image.clip_draw(size * self.front + 1, size * 3 + 1, size - 1,size - 1, self.x2[1], self.y, size_on_canvas, size_on_canvas) # 2
         self.image.clip_draw(size * self.front + 1, size * 3 + 1, size - 1,size - 1, self.x2[2], self.y, size_on_canvas,size_on_canvas) # 3
         # 시간, 코인
-        self.font.draw(10,850,"COINS: %d" % server.coin,(0,0,0))
+        self.font.draw(10,850,"COINS: %d" % server.coin,(255,255,255))
         if self.time > 100:
-            self.font.draw(600,850,"TIME: %d" % int(self.time),(0,0,0))
+            self.font.draw(600,850,"TIME: %d" % int(self.time),(255,255,255))
         else:
-            self.font.draw(650, 850, "TIME: %d" % int(self.time), (0, 0, 0))
+            self.font.draw(650, 850, "TIME: %d" % int(self.time), (255,255,255))
