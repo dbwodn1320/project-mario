@@ -129,7 +129,7 @@ class Goomba:
                 self.spin += game_framework.frame_time
                 self.image.clip_composite_draw(0, 60 - 20,20, 20,3.141592 * 2 * self.spin,'', self.x, self.y, 60, 60)
 
-            draw_rectangle(*self.get_bb())
+            #draw_rectangle(*self.get_bb())
 
     def get_bb(self):
         return self.x - 30, self.y - 30, self.x + 30, self.y + 30

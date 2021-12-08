@@ -10,6 +10,25 @@ TIME_PER_ACTION = 0.35
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 4
 
+class Block_hard:
+    image = None
+    def __init__(self, block_pos, n):
+        if Block_hard.image == None:
+            Block_hard.image = load_image('block_hard.png')
+        self.size = 16
+        self.size_on_canvas = 60  # 블록 당 약 1.15m
+        self.x = self.size_on_canvas * block_pos[1]
+        self.y = self.size_on_canvas / 2 + self.size_on_canvas * block_pos[2]
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.image.clip_draw(0,0,16,16,self.x,self.y,self.size_on_canvas,self.size_on_canvas)
+
+    def get_bb(self):
+        return self.x - self.size_on_canvas/2, self.y - self.size_on_canvas/2, self.x + self.size_on_canvas/2, self.y + self.size_on_canvas/2
+
 class Block:
     image = None
     def __init__(self,block_pos,n):
@@ -44,10 +63,14 @@ class Block:
         if collision.collide_M(server.mario,self,2) and server.mario.cur_state_int == server.JumpState and self.state != 2:
             server.mario.jump_cnt = 3
             if self.kind == 0:
+                if self.state == 0:
+                    server.coin += 1
                 self.state = 1
             elif self.kind == 1:
                 self.state = 2
             elif self.kind == 2:
+                if self.state == 0:
+                    server.coin += 1
                 self.state = 1
             elif self.kind == 3:
                 if self.state == 0:
@@ -123,7 +146,7 @@ class Block:
                                   xy[0], xy[1], 50, 50)
 
 
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
 
     def get_bb(self):
         return self.x - self.size_on_canvas/2, self.y - self.size_on_canvas/2, self.x + self.size_on_canvas/2, self.y + self.size_on_canvas/2

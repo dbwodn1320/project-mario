@@ -20,8 +20,9 @@ from GenerateRandomObj import *
 name = "MainState"
 
 def enter():
-    goomba_pos = SetMonsterPos(server.goombas_num, server.map_len)
-    turtle_pos = SetMonsterPos(server.turtle_num, server.map_len, goomba_pos)
+    goomba_pos = SetMonsterPos(server.goombas_num*(seletion_state.level_index + 1), server.map_len)
+    turtle_pos = SetMonsterPos(server.turtle_num*(seletion_state.level_index + 1), server.map_len, goomba_pos)
+    print(len(goomba_pos),len(turtle_pos))
     blocks_attribute,coin_pos = SetBlockAttribute(server.blocks_center, server.map_data, server.blocks_center // 3)
 
     server.background = Background()
@@ -33,13 +34,12 @@ def enter():
     server.coins = [Coin(coin_pos[i]) for i in range(len(coin_pos))]
 
     game_world.add_object(server.background,0)
-    game_world.add_object(server.mario, 1)
     game_world.add_objects(server.goombas, 1)
     game_world.add_objects(server.green_trutles, 1)
-    game_world.add_objects(server.blocks, 1)
     game_world.add_objects(server.coins, 0)
     game_world.add_objects(server.ground_tiles, 1)
-
+    game_world.add_object(server.mario, 1)
+    game_world.add_objects(server.blocks, 1)
 
 def exit():
     game_world.clear()

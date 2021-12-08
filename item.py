@@ -104,7 +104,7 @@ class Mushroom:
         if -100 < self.x and self.x < 1300 :
             self.image.clip_draw(0, 0, 38, 38, self.x, self.y, 60, 60)
 
-            draw_rectangle(*self.get_bb())
+            #draw_rectangle(*self.get_bb())
 
     def get_bb(self):
         return self.x - 30, self.y - 30, self.x + 30, self.y + 30
@@ -127,11 +127,11 @@ class Coin:
         if collision.collide(server.mario,self) and server.mario.cur_state_int != server.DeathState:
             server.coins.remove(self)
             game_world.remove_object(self)
-            server.mario.coin_num += 1
-
+            server.coin += 1
+            print(server.coin)
     def draw(self):
         if -100 < self.x and self.x < 1300:
             self.image.clip_draw(self.size * int(self.frame), 0, 16, 16, self.x, self.y, 60, 60)
 
     def get_bb(self):
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        return self.x - 35, self.y - 35, self.x + 35, self.y + 35

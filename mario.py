@@ -24,7 +24,7 @@ FRAMES_PER_ACTION_SMALL = [0,20,23,21,10,9]
 
 DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH, UP, DOWN, Landing = range(11)
 
-event_name = ['DEBUG_KEY','RIGHT_DOWN', 'LEFT_DOWN', 'RIGHT_UP', 'LEFT_UP', 'SLEEP_TIMER',\
+event_name = ['DEBUG_KEY','RIGHT_DOWN', 'LEFT_DOWN', 'RIGHT_UP', 'LEFT_UP',\
 'SHIFT_DOWN','SHIFT_UP','SPACE','UP','DOWN','Landing']
 
 key_event_table = {
@@ -144,8 +144,8 @@ class DashState:
             mario.dir -= 1
         elif event == LEFT_UP:
             mario.dir += 1
+        mario.jump_cnt = 0
         mario.dash_timer = 0
-
         mario.dir = clamp(-1,mario.dir,1)
 
     def exit(mario, event):
@@ -176,12 +176,7 @@ class DashState:
 
         mario.dash_timer += FRAMES_PER_ACTION[mario.action] * ACTION_PER_TIME * game_framework.frame_time
         mario.x += mario.velocity * mario.dash_mult * game_framework.frame_time
-        mario.dash_mult += 5.0 * mario.dir * game_framework.frame_time
-
-        if mario.dash_mult < -3.0:
-            mario.dash_mult = -3.0
-        elif mario.dash_mult > 3.0:
-            mario.dash_mult = 3.0
+        mario.dash_mult += 6.0 * mario.dir * game_framework.frame_time
 
     def draw(mario):
         if mario.hp == 1:
@@ -333,7 +328,7 @@ class DeathState:
             mario.image_small.clip_draw(int(mario.frame) * 20, 125 - 25 * 5, 20, 25, mario.x, mario.y, 60, 75)
 
 next_state_table = {
-    DashState: {SHIFT_UP:RunState,SHIFT_DOWN:RunState,LEFT_UP:IdleState,LEFT_DOWN:IdleState,
+    DashState: {SHIFT_UP:RunState,SHIFT_DOWN:DashState,LEFT_UP:IdleState,LEFT_DOWN:IdleState,
                 RIGHT_UP:IdleState,RIGHT_DOWN:IdleState, DEATH: DeathState,UP: JumpState,DOWN: FallingState},
 
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
@@ -360,7 +355,7 @@ class Mario:
         # mario is only once created, so instance image loading is fine
         self.image = load_image('mario.png')
         self.image_small = load_image('mario_small.png')
-        self.font = load_font('ENCR10B.TTF',16)
+        self.font = load_font('SuperMario256.ttf',50)
         self.dir = 0
         self.velocity = RUN_SPEED_PPS
         self.frame = 0
@@ -379,10 +374,12 @@ class Mario:
         self.ghost = 0
         self.ghost_cnt = 0
 
-        self.coin_num = 0
         self.first_cmd = 0
+        self.keydown_shift = 0
+
         if server.map_kind == 2:
             self.y += 60
+
     def add_event(self, event):
         self.event_que.insert(0, event)
 
@@ -392,11 +389,19 @@ class Mario:
             event = self.event_que.pop()
             self.cur_state.exit(self, event)
             try:
-                if self.cur_state == FallingState and event == Landing:
-                    if abs(self.dir) > 0:
+                print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
+                print(MARIO_JUMP - self.jump_cnt * GRAVITY)
+                if self.cur_state == DeathState:
+                    self.cur_state = DeathState
+                elif self.cur_state == FallingState and event == Landing:
+                    if self.keydown_shift == 1:
+                        self.cur_state = DashState
+                    elif abs(self.dir) > 0:
                         self.cur_state = RunState
                     elif self.dir == 0:
                         self.cur_state = IdleState
+                elif self.keydown_shift == 1 and (event != UP and event !=DOWN) and self.cur_state != FallingState and self.cur_state != JumpState:
+                    self.cur_state = DashState
                 else:
                     self.cur_state = next_state_table[self.cur_state][event]
                 #print('cur state:', self.cur_state.__name__, 'event: ', event_name[event])
@@ -529,6 +534,8 @@ class Mario:
             if self.ghost_cnt > 1.0:
                 self.ghost_cnt = 0
                 self.ghost = 0
+                self.image.opacify(1)
+                self.image_small.opacify(1)
 
         # 마리오 착지
         if self.cur_state_int == server.FallingState:
@@ -577,30 +584,45 @@ class Mario:
                         self.dash_mult -= 12.0 * game_framework.frame_time
                     elif self.dash_mult < 0:
                         self.dash_mult += 12.0 * game_framework.frame_time
-            elif self.cur_state != DashState and abs(self.dash_mult) > 1.1:
+            elif (self.cur_state == JumpState or self.cur_state == FallingState) and abs(self.dash_mult) > 1.09 and self.keydown_shift == 1:
+                if self.dash_mult > 0:
+                    self.dash_mult -= 3.0 * game_framework.frame_time
+                elif self.dash_mult < 0:
+                    self.dash_mult += 3.0 * game_framework.frame_time
+            elif self.cur_state != DashState and abs(self.dash_mult) > 1.09:
                 if self.dash_mult > 0:
                     self.dash_mult -= 9.0 * game_framework.frame_time
                 elif self.dash_mult < 0:
                     self.dash_mult += 9.0 * game_framework.frame_time
+
+        if self.dash_mult < -2.5:
+            self.dash_mult = -2.5
+        elif self.dash_mult > 2.5:
+            self.dash_mult = 2.5
+
         if -0.05 < self.dash_mult < -0.05:
             self.dash_mult = 0
 
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.x - 60, self.y + 80, '(HP: %d)' % self.hp,(255,255,0))
+        #self.font.draw(self.x - 60, self.y + 80, '(HP: %d)' % self.hp,(255,255,255))
         #draw_rectangle(*self.get_bb_body())
         #draw_rectangle(*self.get_bb_foot())
         #draw_rectangle(*self.get_bb_head())
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
-            if not self.cur_state_int == server.FallingState or not event.key == SDLK_UP:
+            if not self.cur_state == FallingState or not event.key == SDLK_UP:
                 if not(self.first_cmd == 0 and event.type == SDL_KEYUP and (event.key == SDLK_LEFT or event.key == SDLK_RIGHT)):
                     key_event = key_event_table[(event.type, event.key)]
                     self.add_event(key_event)
+                    if event.type == SDL_KEYUP and (event.key == SDLK_LSHIFT or event.key == SDLK_RSHIFT):
+                        self.keydown_shift = 0
+                    elif event.type == SDL_KEYDOWN and (event.key == SDLK_LSHIFT or event.key == SDLK_RSHIFT):
+                        self.keydown_shift = 1
 
-            print(self.dir)
+            #print(self.keydown_shift)
             self.first_cmd += 1
 
     def get_bb(self):
@@ -613,7 +635,8 @@ class Mario:
         if self.hp == 1:
             return self.x - 20, self.y - 30, self.x + 20, self.y + 30
         elif self.hp <= 0:
-            return self.x - 15, self.y - 20, self.x + 15, self.y + 20
+            #return self.x - 15, self.y - 20, self.x + 15, self.y + 20
+            return self.x - 15, self.y + 9999, self.x + 15, self.y + 99999
     def get_bb_foot(self):
         if self.hp == 1:
             return self.x - 27, self.y - 50, self.x + 27, self.y - 30

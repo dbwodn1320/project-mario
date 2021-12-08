@@ -56,6 +56,10 @@ DEBUG_KEY,RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SHIFT_DOWN, SHIFT_UP, DEATH,
 DashState,IdleState,RunState,JumpState,FallingState,DeathState = range(6)
 
 mario = None
+coin = 0
+score = 0
+life = 5
+
 ground_tiles = None
 background = None
 
@@ -69,9 +73,9 @@ coins = None
 blocks_center = 15
 blocks = None
 
-goombas_num = 10
+goombas_num = 7
 goombas = None
 
-turtle_num = 10
+turtle_num = 7
 green_trutles = None
 

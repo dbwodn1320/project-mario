@@ -2,12 +2,12 @@ import game_framework
 from pico2d import *
 import seletion_state
 
-name = "TitleState"
+name = "StoreState"
 image = None
 
 def enter():
     global image
-    image = load_image('title.png')
+    image = load_image('testmap.png')
 
 def exit():
     global image

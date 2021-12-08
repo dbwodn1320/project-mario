@@ -7,7 +7,7 @@ image = None
 
 def enter():
     global image
-    image = load_image('title.png')
+    image = load_image('testmap.png')
 
 def exit():
     global image

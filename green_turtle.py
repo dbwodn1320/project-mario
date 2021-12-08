@@ -143,8 +143,8 @@ class Green_turtle:
                 self.spin += game_framework.frame_time
                 self.image.clip_composite_draw(0, 0, 20, 20, 3.141592 * 2 * self.spin, '', self.x, self.y, 60, 60)
 
-            self.font.draw(self.x - 60, self.y + 50, '(DIR: %d , Action: %d)' % (self.dir,self.action) , (255, 255, 0))
-            draw_rectangle(*self.get_bb())
+            #self.font.draw(self.x - 60, self.y + 50, '(DIR: %d , Action: %d)' % (self.dir,self.action) , (255, 255, 0))
+            #draw_rectangle(*self.get_bb())
 
     def get_bb_body(self):
         if self.death == 0:
