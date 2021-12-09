@@ -17,13 +17,15 @@ font_level = None
 
 arrow_y = 0
 arrow_y_flag = 0
+
 selected = [[1,0],[0,0]]
 garo_index = 0
 sero_index = 0
+level_index = 0
 
 level = {0: 'EASY',1: 'NORMAL', 2: 'HARD'}
 level_color = [(0,180,180),(180,180,180),(255,100,100)]
-level_index = 0
+
 
 bgm = None
 

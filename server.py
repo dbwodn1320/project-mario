@@ -61,6 +61,11 @@ time_ranking = None
 powerup = None
 coin_sound = None
 
+selected = [[1,0],[0,0]]
+garo_index = 0
+sero_index = 0
+level_index = 0
+
 mario = None
 coin = 9999
 score = 0

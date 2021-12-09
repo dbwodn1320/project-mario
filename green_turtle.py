@@ -84,6 +84,7 @@ class Green_turtle:
             if collision.collide_M(server.mario, self, 0):
                 if self.death == 1 and self.shell == 0:
                     self.shell = 1
+                    self.kick_sound.play()
                     if server.mario.x > self.x:
                         self.dir = -1
                     else:

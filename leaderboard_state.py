@@ -34,7 +34,7 @@ def draw():
 
     font.draw(260, 860, "TIME RANKING", (0, 0, 0))
     font.draw(150, 800, "GRASSLAND", (0, 0, 0))
-    font.draw(550, 800, "CASTLE" , (0, 0, 0))
+    font.draw(550, 800, "CASTLE", (0, 0, 0))
     font.draw(50, 750, "1st", (0, 0, 0))
     font.draw(50, 650, "2nd", (0, 0, 0))
     font.draw(50, 550, "3rd", (0, 0, 0))

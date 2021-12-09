@@ -95,7 +95,7 @@ def update():
             with open('ranking.json', 'w') as f:
                 f.write(json.dumps(server.time_ranking))
 
-            print(server.time_ranking[seletion_state.level_index])
+            #print(server.time_ranking[seletion_state.level_index])
             clear_sound = load_wav("sbm_mapcomplete.wav")
             clear_sound.set_volume(32)
             server.background.bgm.stop()
@@ -110,6 +110,10 @@ def update():
         game_world.clear()
         if server.life < 0:
             game_framework.change_state(gameover_state)
+            seletion_state.selected = [[1, 0], [0, 0]]
+            seletion_state.garo_index = 0
+            seletion_state.sero_index = 0
+            seletion_state.level_index = 0
         else:
             game_framework.change_state(seletion_state)
 
